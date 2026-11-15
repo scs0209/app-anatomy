@@ -10,7 +10,7 @@ It reads every app in `/Applications` and `~/Applications`, works out the runtim
 
 Nothing is uploaded. Apps are read, never run. The result page is served from your own machine.
 
-> Status: early. "App Anatomy" is a working name. Version 0.1.0 is on npm. Things added after it (taking a block out to see the size without it) are only in this repository until the next release: clone it and run `node cli/main.mjs scan --open`.
+> Status: early. "App Anatomy" is a working name.
 
 ## One app
 
