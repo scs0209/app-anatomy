@@ -1,0 +1,25 @@
+# 규칙 파일 검사. 규칙이나 검사 도구를 건드린 PR과 main에 들어온 변경에서 돈다.
+# 저장소에 실린 해석기(dist/anatomy_core.wasm)의 검증을 쓰므로 Rust가 필요 없다.
+name: rules
+
+on:
+  pull_request:
+    paths: ["rules/**", "dist/anatomy_core.wasm", "host/loader.mjs", ".github/workflows/rules.yml"]
+  push:
+    branches: [main]
+    paths: ["rules/**", "dist/anatomy_core.wasm", "host/loader.mjs", ".github/workflows/rules.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - name: Check rule files
+        run: node rules/tools/check.mjs

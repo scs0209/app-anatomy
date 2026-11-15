@@ -162,20 +162,20 @@ fn valid_id(s: &str) -> bool {
 
 fn check_glob(v: &str) -> Result<(), &'static str> {
     if v.chars().any(|c| matches!(c, '?' | '[' | ']' | '{' | '}' | '\\')) {
-        return Err("글롭에는 `*`만 쓸 수 있다");
+        return Err("a glob may use only `*`");
     }
     if v.contains("**") {
-        return Err("`**`는 쓸 수 없다");
+        return Err("`**` is not allowed");
     }
     let stars = v.matches('*').count();
     if stars == 0 {
-        return Err("글롭에 `*`가 없다. literal을 쓴다");
+        return Err("the glob has no `*`; use literal");
     }
     if stars > MAX_GLOB_STARS {
-        return Err("`*`는 두 개까지다");
+        return Err("at most two `*`");
     }
     if v.replace('*', "").len() < 3 {
-        return Err("글롭의 고정 글자가 3자 미만이다");
+        return Err("a glob needs at least 3 fixed characters");
     }
     Ok(())
 }
@@ -185,60 +185,60 @@ pub fn validate(file: &RuleFile) -> Vec<RuleError> {
     let mut errs = Vec::new();
     let mut top = |m: &str| errs.push(RuleError { rule: None, id: None, message: m.to_string() });
     if file.format_version != RULES_FORMAT_VERSION {
-        top("formatVersion이 지원하는 값이 아니다");
+        top("formatVersion is not a supported value");
     }
     if !valid_id(&file.source.id) {
-        top("source.id에 쓸 수 없는 글자가 있다");
+        top("source.id has a character that is not allowed");
     }
     if file.source.license.trim().is_empty() {
-        top("source.license가 비어 있다");
+        top("source.license is empty");
     }
     if let Some(u) = &file.source.url {
         if !u.starts_with("https://") {
-            top("source.url은 https:여야 한다");
+            top("source.url must be https:");
         }
     }
     if file.source.revision.is_some() && !file.source.modified && file.source.id != "builtin" {
         // 가져온 규칙은 변환을 거치므로 modified가 true여야 한다.
-        top("revision이 있는 가져온 규칙인데 modified가 false다");
+        top("imported rules (with a revision) must have modified: true");
     }
     if file.rules.windows(2).any(|w| w[0].id.as_bytes() >= w[1].id.as_bytes()) {
-        top("rules가 id의 바이트 순서로 정렬돼 있지 않거나 id가 겹친다");
+        top("rules are not sorted by id (byte order), or an id appears twice");
     }
     let mut seen = HashSet::new();
     for (i, r) in file.rules.iter().enumerate() {
         let mut e = |m: String| errs.push(RuleError { rule: Some(i), id: Some(r.id.clone()), message: m });
         if !valid_id(&r.id) {
-            e("id에 쓸 수 없는 글자가 있다".into());
+            e("the id has a character that is not allowed (use a-z, 0-9, `.`, `_`, `-`)".into());
         }
         if !seen.insert(r.id.as_str()) {
-            e("id가 겹친다".into());
+            e("the id appears twice".into());
         }
         if r.name.trim().is_empty() {
-            e("name이 비어 있다".into());
+            e("name is empty".into());
         }
         if (r.kind == RuleKind::Runtime) != r.runtime.is_some() {
-            e("runtime 필드는 kind가 runtime일 때만, 그리고 반드시 있어야 한다".into());
+            e("the runtime field is required when kind is runtime, and not allowed otherwise".into());
         }
         if let Some(h) = &r.homepage {
             if !h.starts_with("https://") {
-                e("homepage는 https:여야 한다".into());
+                e("homepage must be https:".into());
             }
         }
         if r.matches.is_empty() {
-            e("match가 비어 있다".into());
+            e("match is empty".into());
         }
         let mut dup = HashSet::new();
         for (j, m) in r.matches.iter().enumerate() {
             let mut e = |msg: String| errs.push(RuleError { rule: Some(i), id: Some(r.id.clone()), message: format!("match[{j}]: {msg}") });
             if !m.target.allowed().contains(&m.match_type) {
-                e(format!("{:?}에는 {:?}를 쓸 수 없다", m.target, m.match_type));
+                e(format!("target {:?} does not accept type {:?}", m.target, m.match_type));
             }
             if m.value.is_empty() || m.value.len() > 512 {
-                e("value의 길이가 1~512 밖이다".into());
+                e("value must be 1 to 512 characters".into());
             }
             if m.value.chars().any(|c| c.is_control()) {
-                e("value에 제어 문자가 있다".into());
+                e("value has a control character".into());
             }
             match m.match_type {
                 MatchType::Glob => {
@@ -248,38 +248,38 @@ pub fn validate(file: &RuleFile) -> Vec<RuleError> {
                 }
                 MatchType::Prefix => {
                     if matches!(m.target, MatchTarget::Path | MatchTarget::DexClass) && !m.value.ends_with('/') {
-                        e("경로와 클래스의 접두어는 `/`로 끝나야 한다".into());
+                        e("a path or class prefix must end with `/`".into());
                     }
                     if m.value.len() < 3 {
-                        e("접두어가 3자 미만이다".into());
+                        e("a prefix needs at least 3 characters".into());
                     }
                 }
                 MatchType::Literal => {
                     if m.value.contains('*') && m.target != MatchTarget::StringMarker {
-                        e("literal 값에 `*`가 있다. glob을 쓴다".into());
+                        e("a literal value has `*`; use glob".into());
                     }
                 }
             }
             if matches!(m.target, MatchTarget::FileName | MatchTarget::FrameworkName | MatchTarget::NpmPackage) {
                 let slash_ok = m.target == MatchTarget::NpmPackage && m.value.starts_with('@') && m.value.matches('/').count() == 1;
                 if m.value.contains('/') && !slash_ok {
-                    e("이 대상의 값에는 `/`를 쓸 수 없다".into());
+                    e("this target's value may not contain `/`".into());
                 }
             }
             if matches!(m.target, MatchTarget::Path | MatchTarget::DexClass) && (m.value.starts_with('/') || m.value.contains("//") || m.value.split('/').any(|s| s == "..")) {
-                e("경로가 `/`로 시작하거나 `//`, `..`을 담고 있다".into());
+                e("the path starts with `/` or contains `//` or `..`".into());
             }
             let marker = m.target == MatchTarget::StringMarker;
             if marker != m.file.is_some() || marker != m.max_file_bytes.is_some() {
-                e("file과 maxFileBytes는 string-marker일 때만, 그리고 둘 다 있어야 한다".into());
+                e("file and maxFileBytes are required for string-marker (both), and not allowed otherwise".into());
             }
             if marker {
                 if m.value.len() < 6 {
-                    e("문자열 표식이 6자 미만이다".into());
+                    e("a string marker needs at least 6 characters".into());
                 }
                 if let Some(n) = m.max_file_bytes {
                     if n == 0 || n > MAX_MARKER_FILE_BYTES {
-                        e("maxFileBytes가 1~64 MiB 밖이다".into());
+                        e("maxFileBytes must be between 1 byte and 64 MiB".into());
                     }
                 }
                 if let Some(f) = &m.file {
@@ -293,10 +293,10 @@ pub fn validate(file: &RuleFile) -> Vec<RuleError> {
             let mut p = m.packaging.clone();
             p.dedup();
             if p.len() != m.packaging.len() {
-                e("packaging에 같은 값이 겹친다".into());
+                e("packaging lists the same value twice".into());
             }
             if !dup.insert((m.target, m.match_type, m.value.as_str(), m.file.as_deref())) {
-                e("같은 조건이 두 번 있다".into());
+                e("the same condition appears twice".into());
             }
         }
     }
