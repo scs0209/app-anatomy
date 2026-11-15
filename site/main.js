@@ -195,7 +195,9 @@ async function mountChip(doc, firstLoad) {
   const base = { drift: true, noglText: t("nogl"), originWord, alt: t("alt", doc.input.name) };
   const c = state.chip = flat
     ? V.flat($("stage"), data, { originWord, swatch, labelLayer: doc.scan ? 1 : 2, hint: t("flatHint"), alt: t("flatAlt", doc.input.name) })
-    : V.chip($("stage"), data, { ...base, calloutLayer: doc.scan ? 1 : 2, dropText: t("dropOut"), onPick: it => { if (it.layer >= 1) toggleRemoved([it]); }, // 블록을 끌어내 놓았을 때 불린다 callouts: innerWidth >= 1560 ? 6 : innerWidth >= 1240 ? 5 : 4, // 좁을수록 라벨을 줄여 오른쪽 층 단추와 겹치지 않게 한다
+    : V.chip($("stage"), data, { ...base, calloutLayer: doc.scan ? 1 : 2,
+        dropText: t("dropOut"), onPick: it => { if (it.layer >= 1) toggleRemoved([it]); }, // 블록을 끌어내 놓았을 때 불린다
+        callouts: innerWidth >= 1560 ? 6 : innerWidth >= 1240 ? 5 : 4, // 좁을수록 라벨을 줄여 오른쪽 층 단추와 겹치지 않게 한다
         halfH: 124, halfW: 150, shiftX: -0.3, shiftY: -0.2, gap: 16,
         onHover: it => { for (const tr of body.children) tr.classList.toggle("hot", !!it && (tr._its.includes(it) || tr._its.includes(it.parent))); } });
   no3d(!!c.nogl, flat);

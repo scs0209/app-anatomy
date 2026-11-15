@@ -221,7 +221,7 @@ export function chip(host, data, opts = {}) {
       c.line.geometry.instanceCount = Math.floor(c.segs * clamp(c.p * 1.25, 0, 1)); c.line.visible = c.p > 0.01;
       const tail = clamp((c.p - 0.72) / 0.28, 0, 1); c.label.material.opacity = tail; c.pad.material.opacity = tail; c.label.visible = c.pad.visible = tail > 0;
       c.riser.visible = c.p > 0.02 && c.it.group.visible; c.riser.scale.y = Math.max(0.001, c.it.group.position.y - PLATE);
-      if (snap) c.line.visible = c.label.visible = c.pad.visible = c.riser.visible = false; // 공유 카드에는 회로선과 라벨을 넣지 않는다
+      if (snap && !snapKeep) c.line.visible = c.label.visible = c.pad.visible = c.riser.visible = false; // 공유 카드에는 회로선과 라벨을 넣지 않는다
     }
     if (hot) { outline.visible = true; outline.position.copy(hot.group.position); outline.position.y += hot.th / 2; outline.scale.copy(hot.mesh.scale).multiplyScalar(1.012); } else outline.visible = false;
     const top = Math.min(maxLayer, Math.max(1, api.lifted) - 1), tcy = (baseY(top) + TH[Math.min(top, 3)] + top * (api.open ? GAP : 0)) / 2;
@@ -231,7 +231,7 @@ export function chip(host, data, opts = {}) {
     composer.render();
     return moving;
   }
-  let running = false, last = 0, dragging = false, onScreen = true, dead = false, snap = false;
+  let running = false, last = 0, dragging = false, onScreen = true, dead = false, snap = false, snapKeep = false;
   function tick() { if (dead) return; const now = performance.now(), moving = frame(Math.min(0.05, (now - last) / 1000), now); last = now; if (moving || dragging || grab) next(); else running = false; }
   function next() { let done = false; const go = () => { if (!done) { done = true; tick(); } }; requestAnimationFrame(go); setTimeout(go, 80); } // 화면이 가려져 있어도 멈추지 않게
   function kick() { if (!running) { running = true; last = performance.now(); next(); } }
@@ -281,7 +281,7 @@ export function chip(host, data, opts = {}) {
   ro.observe(host); io.observe(host);
   // 공유 카드용 그림: 지금 보이는 각도와 열림 상태 그대로 w×h 화소로 한 번 그려 돌려준다. f는 카메라 틀(halfH, halfW, shiftX, shiftY).
   api.snapshot = (w, h, f = {}) => {
-    const pr = renderer.getPixelRatio(), keepHot = hot; hot = null; snap = true;
+    const pr = renderer.getPixelRatio(), keepHot = hot; hot = null; snap = true; snapKeep = !!f.callouts; // f.callouts: 회로선과 라벨을 남긴다(README용 영상을 찍을 때 쓴다)
     renderer.setPixelRatio(1); composer.setPixelRatio(1); renderer.setSize(w, h, false); composer.setSize(w, h);
     const aspect = w / h, halfH = Math.max(f.halfH || 104, (f.halfW || 150) / aspect), halfW = halfH * aspect, sx = (f.shiftX || 0) * halfW, sy = (f.shiftY || 0) * halfH;
     cam.left = -halfW + sx; cam.right = halfW + sx; cam.top = halfH + sy; cam.bottom = -halfH + sy; cam.updateProjectionMatrix();
