@@ -300,6 +300,23 @@
      ]
     }
    ]
+  },
+  {
+   "id": "lib.watermelondb",
+   "name": "WatermelonDB",
+   "kind": "library",
+   "category": "other",
+   "homepage": "https://github.com/Nozbe/WatermelonDB",
+   "match": [
+    {
+     "target": "file-name",
+     "type": "literal",
+     "value": "libwatermelondb-jsi.so",
+     "packaging": [
+      "apk"
+     ]
+    }
+   ]
   }
  ]
 }

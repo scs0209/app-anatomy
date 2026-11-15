@@ -35,7 +35,7 @@ Inputs: a `.app` folder, a ZIP containing a `.app`, an Android APK, an iOS IPA. 
 
 ## Contributing rules
 
-Unidentified parts are the gray hatched blocks. A rule that names one is a few lines of JSON in `rules/builtin/builtin.json`. A guide for writing and testing rules is not written yet.
+Unidentified parts are the gray hatched blocks. A rule that names one is a few lines of JSON, and you only need Node to write and test it. [CONTRIBUTING.md](CONTRIBUTING.md) walks through a real one: one rule took Rocket.Chat's Android app from 90.9% to 94.0% identified.
 
 ## Layout
 
