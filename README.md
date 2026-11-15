@@ -2,6 +2,8 @@
 
 See what the apps on your Mac are made of.
 
+![A chip package opens into layers showing what Joplin is made of; the Electron block is dragged out and the size drops from 613.7 MB to 327.4 MB](docs/demo.gif)
+
 ```bash
 npx app-anatomy scan --open
 ```

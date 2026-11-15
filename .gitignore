@@ -23,3 +23,6 @@ CLAUDE.md
 .impeccable/
 wasm-proto/
 mymac-anatomy/
+
+# 고화질 영상은 저장소에 넣지 않는다(GIF만 넣는다).
+docs/*.mp4
