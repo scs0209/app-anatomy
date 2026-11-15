@@ -1,0 +1,317 @@
+{
+ "schemaVersion": 1,
+ "toolVersion": "0.0.0-example",
+ "rulesVersion": "0-example",
+ "inputSha256": null,
+ "input": {
+  "packaging": "macos-app",
+  "name": "Example",
+  "appId": "com.example.desktop",
+  "approximate": false
+ },
+ "runtimes": [
+  {
+   "runtime": "electron",
+   "dissected": true,
+   "bytes": 210474680,
+   "confidence": "high",
+   "evidence": {
+    "kind": "path",
+    "detail": "Contents/Frameworks/Electron Framework.framework"
+   },
+   "version": "42.0.0"
+  }
+ ],
+ "completeness": {
+  "totalBytes": 213875872,
+  "unidentifiedBytes": 0,
+  "opaqueBytes": 13207000,
+  "overheadBytes": 525192,
+  "sharedBytes": 0,
+  "parseFailedNodes": 0
+ },
+ "copies": [
+  {
+   "containerType": "arch",
+   "name": "arm64",
+   "bytes": 52000
+  },
+  {
+   "containerType": "arch",
+   "name": "x86_64",
+   "bytes": 55000
+  }
+ ],
+ "warnings": [],
+ "root": {
+  "kind": "app",
+  "name": "Example",
+  "children": [
+   {
+    "kind": "overhead",
+    "name": "(overhead)",
+    "bytes": 96000
+   },
+   {
+    "kind": "runtime",
+    "name": "Electron",
+    "children": [
+     {
+      "kind": "library",
+      "name": "Electron Framework",
+      "fileKind": "executable",
+      "origin": "runtime",
+      "confidence": "high",
+      "evidence": {
+       "kind": "path",
+       "detail": "Contents/Frameworks/Electron Framework.framework"
+      },
+      "noModuleLayer": true,
+      "bytes": 191800000
+     },
+     {
+      "kind": "container",
+      "name": "Example Helper.app",
+      "containerType": "nested-app",
+      "children": [
+       {
+        "kind": "overhead",
+        "name": "(overhead)",
+        "bytes": 9000
+       },
+       {
+        "kind": "library",
+        "name": "Example Helper",
+        "fileKind": "executable",
+        "origin": "runtime",
+        "confidence": "high",
+        "bytes": 180000
+       }
+      ],
+      "bytes": 189000
+     },
+     {
+      "kind": "container",
+      "name": "app.asar",
+      "containerType": "parsed-file",
+      "paths": [
+       "Contents/Resources/app.asar",
+       "Contents/Resources/app.asar.unpacked/"
+      ],
+      "children": [
+       {
+        "kind": "overhead",
+        "name": "(overhead)",
+        "bytes": 412000
+       },
+       {
+        "kind": "library",
+        "name": "@scope/widgets",
+        "evidence": {
+         "kind": "metadata",
+         "detail": "node_modules/@scope/widgets/package.json"
+        },
+        "origin": "library",
+        "confidence": "high",
+        "category": "ui",
+        "ruleId": "npm.scope-widgets",
+        "ruleSource": "builtin",
+        "children": [
+         {
+          "kind": "module",
+          "name": "dist/index.js",
+          "fileKind": "script",
+          "origin": "library",
+          "confidence": "high",
+          "bytes": 210000
+         },
+         {
+          "kind": "module",
+          "name": "dist/index.js.map",
+          "fileKind": "sourcemap",
+          "origin": "library",
+          "confidence": "high",
+          "bytes": 640000
+         }
+        ],
+        "bytes": 850000
+       },
+       {
+        "kind": "library",
+        "name": "left-pad",
+        "evidence": {
+         "kind": "metadata",
+         "detail": "node_modules/left-pad/package.json"
+        },
+        "origin": "library",
+        "confidence": "high",
+        "children": [
+         {
+          "kind": "module",
+          "name": "index.js",
+          "fileKind": "script",
+          "origin": "library",
+          "confidence": "high",
+          "bytes": 1200
+         },
+         {
+          "kind": "module",
+          "name": "package.json",
+          "fileKind": "data",
+          "origin": "library",
+          "confidence": "high",
+          "bytes": 480
+         }
+        ],
+        "bytes": 1680
+       },
+       {
+        "kind": "library",
+        "name": "main.bundle.js",
+        "fileKind": "script",
+        "origin": "bundled-app-code",
+        "confidence": "high",
+        "evidence": {
+         "kind": "location",
+         "detail": "outside node_modules"
+        },
+        "noModuleLayer": true,
+        "bytes": 13100000
+       },
+       {
+        "kind": "library",
+        "name": "sqlite3",
+        "evidence": {
+         "kind": "metadata",
+         "detail": "node_modules/sqlite3/package.json"
+        },
+        "origin": "library",
+        "confidence": "high",
+        "children": [
+         {
+          "kind": "module",
+          "name": "build/Release/node_sqlite3.node",
+          "fileKind": "executable",
+          "origin": "library",
+          "confidence": "high",
+          "bytes": 4100000
+         },
+         {
+          "kind": "module",
+          "name": "lib/sqlite3.js",
+          "fileKind": "script",
+          "origin": "library",
+          "confidence": "high",
+          "bytes": 22000
+         }
+        ],
+        "bytes": 4122000
+       }
+      ],
+      "bytes": 18485680
+     }
+    ],
+    "bytes": 210474680
+   },
+   {
+    "kind": "link",
+    "name": "Electron Framework.framework/Resources",
+    "link": {
+     "target": "Versions/Current/Resources",
+     "external": false
+    },
+    "bytes": 0
+   },
+   {
+    "kind": "library",
+    "name": "Example",
+    "origin": "app-code",
+    "confidence": "medium",
+    "evidence": {
+     "kind": "location",
+     "detail": "Contents/MacOS/Example"
+    },
+    "paths": [
+     "Contents/MacOS/Example"
+    ],
+    "children": [
+     {
+      "kind": "overhead",
+      "name": "(overhead)",
+      "bytes": 8192
+     },
+     {
+      "kind": "container",
+      "name": "arm64",
+      "containerType": "arch",
+      "children": [
+       {
+        "kind": "module",
+        "name": "code",
+        "fileKind": "executable",
+        "origin": "bundled-app-code",
+        "confidence": "medium",
+        "noModuleLayer": true,
+        "bytes": 52000
+       }
+      ],
+      "bytes": 52000
+     },
+     {
+      "kind": "container",
+      "name": "x86_64",
+      "containerType": "arch",
+      "children": [
+       {
+        "kind": "module",
+        "name": "code",
+        "fileKind": "executable",
+        "origin": "bundled-app-code",
+        "confidence": "medium",
+        "noModuleLayer": true,
+        "bytes": 55000
+       }
+      ],
+      "bytes": 55000
+     }
+    ],
+    "bytes": 115192
+   },
+   {
+    "kind": "container",
+    "name": "Example Watch.app",
+    "containerType": "opaque",
+    "paths": [
+     "Contents/Watch/Example Watch.app/"
+    ],
+    "bytes": 2400000
+   },
+   {
+    "kind": "library",
+    "name": "Squirrel.framework",
+    "fileKind": "executable",
+    "category": "other",
+    "evidence": {
+     "kind": "path",
+     "detail": "Contents/Frameworks/Squirrel.framework"
+    },
+    "origin": "library",
+    "confidence": "medium",
+    "bytes": 310000
+   },
+   {
+    "kind": "library",
+    "name": "icon.icns",
+    "fileKind": "image",
+    "evidence": {
+     "kind": "file-type",
+     "detail": ".icns"
+    },
+    "origin": "asset",
+    "confidence": "medium",
+    "bytes": 480000
+   }
+  ],
+  "bytes": 213875872
+ }
+}

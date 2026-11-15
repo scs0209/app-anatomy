@@ -1,0 +1,411 @@
+{
+ "answerFormat": 1,
+ "status": "draft",
+ "sample": {
+  "id": "09-joplin-android",
+  "app": "Joplin Android",
+  "version": "3.7.10",
+  "packaging": "apk",
+  "file": "joplin-v3.7.10.apk",
+  "fileBytes": 177105759,
+  "sha256": "2060b9c98c40a37c85138db641ed20a0eb7d1af13e3e17add434abcdb186f34a",
+  "source": "https://github.com/laurent22/joplin-android/releases",
+  "license": null
+ },
+ "expected": {
+  "entryBytes": 200629593,
+  "runtimes": [
+   {
+    "runtime": "react-native",
+    "dissected": true
+   }
+  ],
+  "components": [
+   {
+    "match": {
+     "target": "path",
+     "value": "assets/index.android.bundle"
+    },
+    "layer": "library",
+    "origin": "bundled-app-code",
+    "bytes": 30369360,
+    "status": "clear",
+    "basis": "React Native JS 번들(Hermes 바이트코드)"
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libreactnative.so"
+    },
+    "layer": "library",
+    "origin": "runtime",
+    "bytes": 22522608,
+    "status": "clear",
+    "basis": "런타임 엔진 라이브러리",
+    "abiCount": 4
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libcrypto.so"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 20788040,
+    "status": "clear",
+    "basis": "LibChecker 규칙 lc.900928fd-b86b-4c72-9fde-372edc299b00 (OpenSSL)",
+    "ruleSource": "libchecker-rules",
+    "ruleId": "lc.900928fd-b86b-4c72-9fde-372edc299b00",
+    "abiCount": 4
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libbarhopper_v3.so"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 20222808,
+    "status": "clear",
+    "basis": "LibChecker 규칙 lc.587512ba-f0d0-43fe-9a4a-3e57074a5201 (BarHopper)",
+    "ruleSource": "libchecker-rules",
+    "ruleId": "lc.587512ba-f0d0-43fe-9a4a-3e57074a5201",
+    "abiCount": 4
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libQuickCrypto.so"
+    },
+    "layer": "library",
+    "origin": "unidentified",
+    "bytes": 13319660,
+    "status": "clear",
+    "basis": "규칙에 없다(확정: 미식별이 정답)",
+    "note": "규칙을 쓰면 외부 라이브러리로 바뀐다",
+    "abiCount": 4
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libhermes.so"
+    },
+    "layer": "library",
+    "origin": "runtime",
+    "bytes": 8453476,
+    "status": "clear",
+    "basis": "런타임 엔진 라이브러리",
+    "abiCount": 4
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libappmodules.so"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 4834820,
+    "status": "clear",
+    "basis": "LibChecker 규칙 lc.d91d8716-4843-4bee-b4a6-6bb0e7d2fb2d (React Native)",
+    "ruleSource": "libchecker-rules",
+    "ruleId": "lc.d91d8716-4843-4bee-b4a6-6bb0e7d2fb2d",
+    "abiCount": 4
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libexpo-modules-core.so"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 4825768,
+    "status": "clear",
+    "basis": "LibChecker 규칙 lc.4373f630-4557-4db6-8b6b-bcc98f27380a (Expo)",
+    "ruleSource": "libchecker-rules",
+    "ruleId": "lc.4373f630-4557-4db6-8b6b-bcc98f27380a",
+    "abiCount": 4
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libc++_shared.so"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 4672844,
+    "status": "clear",
+    "basis": "LibChecker 규칙 lc.3af88efc-244b-4f4b-b7e3-1799464db267 (C++ Shared Library)",
+    "ruleSource": "libchecker-rules",
+    "ruleId": "lc.3af88efc-244b-4f4b-b7e3-1799464db267",
+    "abiCount": 4
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "res"
+    },
+    "layer": "library",
+    "origin": "asset",
+    "bytes": 4373486,
+    "status": "clear",
+    "basis": "Android 리소스"
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libssl.so"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 4097028,
+    "status": "clear",
+    "basis": "LibChecker 규칙 lc.900928fd-b86b-4c72-9fde-372edc299b00 (OpenSSL)",
+    "ruleSource": "libchecker-rules",
+    "ruleId": "lc.900928fd-b86b-4c72-9fde-372edc299b00",
+    "abiCount": 4
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libomp.so"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 3759032,
+    "status": "clear",
+    "basis": "LibChecker 규칙 lc.12eb7324-9094-4bb7-9134-048f16d7006e (LibOMP)",
+    "ruleSource": "libchecker-rules",
+    "ruleId": "lc.12eb7324-9094-4bb7-9134-048f16d7006e",
+    "abiCount": 4
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libNitroModules.so"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 3448148,
+    "status": "clear",
+    "basis": "LibChecker 규칙 lc.45a4f845-e453-4bed-aebd-5caa4d8304d0 (Nitro Modules)",
+    "ruleSource": "libchecker-rules",
+    "ruleId": "lc.45a4f845-e453-4bed-aebd-5caa4d8304d0",
+    "abiCount": 4
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "com/google/"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 3034987,
+    "status": "judgment",
+    "basis": "널리 알려진 패키지 접두어"
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libreact_codegen_rnsvg.so"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 3017112,
+    "status": "clear",
+    "basis": "LibChecker 규칙 lc.137c1496-9017-4871-9f67-1f588b1c7e1f (react-native-svg)",
+    "ruleSource": "libchecker-rules",
+    "ruleId": "lc.137c1496-9017-4871-9f67-1f588b1c7e1f",
+    "abiCount": 4
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "assets/fonts"
+    },
+    "layer": "library",
+    "origin": "asset",
+    "bytes": 2424692,
+    "status": "judgment",
+    "basis": "assets/ 아래(계획 9.1: 경로로 에셋 판정)"
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libnative-imagetranscoder.so"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 2311616,
+    "status": "clear",
+    "basis": "LibChecker 규칙 lc.951bad0e-83e5-44f7-83f2-7b3b6af1c7bc (Fresco)",
+    "ruleSource": "libchecker-rules",
+    "ruleId": "lc.951bad0e-83e5-44f7-83f2-7b3b6af1c7bc",
+    "abiCount": 4
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "org/spongycastle/"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 2154726,
+    "status": "judgment",
+    "basis": "널리 알려진 패키지 접두어"
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libggml-base.so"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 2014820,
+    "status": "clear",
+    "basis": "LibChecker 규칙 lc.bebf232e-dac1-4e25-b05e-b24f374dbe52 (GGML)",
+    "ruleSource": "libchecker-rules",
+    "ruleId": "lc.bebf232e-dac1-4e25-b05e-b24f374dbe52",
+    "abiCount": 4
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "androidx/media3/"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 1967248,
+    "status": "judgment",
+    "basis": "널리 알려진 패키지 접두어"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "resources.arsc"
+    },
+    "layer": "library",
+    "origin": "asset",
+    "bytes": 1875824,
+    "status": "clear",
+    "basis": "Android 리소스 표"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "com/facebook/"
+    },
+    "layer": "library",
+    "origin": "runtime",
+    "bytes": 1481558,
+    "status": "judgment",
+    "basis": "런타임의 자바 쪽 코드(확정: 런타임)",
+    "note": "com/facebook 아래에는 React Native가 아닌 라이브러리도 섞여 있다. 더 긴 접두어(com/facebook/react/ 등)로 좁혀 바이트를 다시 나눠야 한다"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "kotlin/reflect/"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 1018279,
+    "status": "judgment",
+    "basis": "널리 알려진 패키지 접두어"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "androidx/camera/"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 873694,
+    "status": "judgment",
+    "basis": "널리 알려진 패키지 접두어"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "expo/modules/"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 811715,
+    "status": "judgment",
+    "basis": "널리 알려진 패키지 접두어"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "androidx/core/"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 438387,
+    "status": "judgment",
+    "basis": "널리 알려진 패키지 접두어"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "(패키지 마디가 둘 미만인 클래스)"
+    },
+    "layer": "library",
+    "origin": "unidentified",
+    "bytes": 242576,
+    "status": "clear",
+    "basis": "이름이 줄여진(난독화된) 클래스(확정: 미식별이 정답)",
+    "note": "도구가 여기에 라이브러리 이름을 붙이면 오탐으로 센다"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "net/cozic/"
+    },
+    "layer": "library",
+    "origin": "app-code",
+    "bytes": 4872,
+    "status": "clear",
+    "basis": "매니페스트의 패키지 이름 net.cozic.joplin"
+   }
+  ],
+  "listedBytes": 169359184,
+  "listedShare": 0.8441,
+  "facts": {
+   "abis": [
+    "arm64-v8a",
+    "armeabi-v7a",
+    "x86",
+    "x86_64"
+   ],
+   "copies": [
+    {
+     "containerType": "abi",
+     "name": "arm64-v8a",
+     "bytes": 33137944
+    },
+    {
+     "containerType": "abi",
+     "name": "armeabi-v7a",
+     "bytes": 23035500
+    },
+    {
+     "containerType": "abi",
+     "name": "x86",
+     "bytes": 34780844
+    },
+    {
+     "containerType": "abi",
+     "name": "x86_64",
+     "bytes": 35523696
+    }
+   ],
+   "nativeLibBytes": 126477984,
+   "dexBytes": 33794552,
+   "dexSharedBytes": 17864276,
+   "appPackagePrefix": "net/cozic",
+   "dexShortNamePackageBytes": 0
+  }
+ },
+ "surprisingFact": "클래스 32,370개가 난독화 없이 들어 있다"
+}

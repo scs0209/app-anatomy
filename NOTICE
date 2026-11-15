@@ -1,0 +1,20 @@
+App Anatomy (working name)
+Licensed under the Apache License, Version 2.0. See LICENSE.
+
+This product includes material from other projects:
+
+LibChecker-Rules
+  https://github.com/LibChecker/LibChecker-Rules, commit 4189fc0de0a0d67f0e729a5b9699a52e9ff3ffcf
+  Copyright 2022 Absinthe. Apache License 2.0.
+  rules/imported/libchecker-rules.json is derived from that repository's library
+  rules. It was converted to this project's rule format; entries that do not fit
+  the format were left out.
+
+three.js 0.160.0
+  https://github.com/mrdoob/three.js. MIT License. See site/vendor/three/LICENSE.
+  The files under site/vendor/three are unmodified except that the add-on
+  modules import three by a relative path.
+
+Archivo, JetBrains Mono, Pretendard (fonts)
+  SIL Open Font License 1.1. See site/fonts/LICENSE-Archivo.txt,
+  site/fonts/LICENSE-JetBrainsMono.txt and site/fonts/LICENSE-Pretendard.txt.

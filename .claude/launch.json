@@ -1,0 +1,33 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "site",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8767",
+        "--bind",
+        "127.0.0.1",
+        "--directory",
+        "site-dist"
+      ],
+      "port": 8767
+    },
+    {
+      "name": "design",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8768",
+        "--bind",
+        "127.0.0.1",
+        "--directory",
+        "design"
+      ],
+      "port": 8768
+    }
+  ]
+}

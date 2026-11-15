@@ -1,0 +1,366 @@
+{
+ "schemaVersion": 1,
+ "toolVersion": "0.0.0-example",
+ "rulesVersion": "0-example",
+ "inputSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+ "input": {
+  "packaging": "apk",
+  "name": "Example Notes",
+  "appId": "com.example.notes",
+  "appVersion": "1.2.3",
+  "approximate": false
+ },
+ "runtimes": [
+  {
+   "runtime": "react-native",
+   "dissected": true,
+   "bytes": 33951000,
+   "confidence": "high",
+   "evidence": {
+    "kind": "path",
+    "detail": "lib/arm64-v8a/libreactnative.so"
+   }
+  }
+ ],
+ "completeness": {
+  "totalBytes": 53219718,
+  "unidentifiedBytes": 3072,
+  "opaqueBytes": 14700000,
+  "overheadBytes": 310000,
+  "sharedBytes": 3400000,
+  "parseFailedNodes": 1
+ },
+ "copies": [
+  {
+   "containerType": "abi",
+   "name": "arm64-v8a",
+   "bytes": 9300000
+  },
+  {
+   "containerType": "abi",
+   "name": "x86_64",
+   "bytes": 9951000
+  }
+ ],
+ "warnings": [
+  {
+   "code": "W_PARSE_FAILED",
+   "message": "classes3.dex could not be parsed; it is counted as one block.",
+   "path": "classes3.dex"
+  }
+ ],
+ "root": {
+  "kind": "app",
+  "name": "Example Notes",
+  "children": [
+   {
+    "kind": "overhead",
+    "name": "(overhead)",
+    "bytes": 310000
+   },
+   {
+    "kind": "runtime",
+    "name": "React Native",
+    "children": [
+     {
+      "kind": "container",
+      "name": "arm64-v8a",
+      "containerType": "abi",
+      "children": [
+       {
+        "kind": "library",
+        "name": "libhermes.so",
+        "fileKind": "executable",
+        "origin": "runtime",
+        "confidence": "high",
+        "evidence": {
+         "kind": "path",
+         "detail": "lib/arm64-v8a/libhermes.so"
+        },
+        "paths": [
+         "lib/arm64-v8a/libhermes.so"
+        ],
+        "bytes": 2100000
+       },
+       {
+        "kind": "library",
+        "name": "libreactnative.so",
+        "fileKind": "executable",
+        "origin": "runtime",
+        "confidence": "high",
+        "evidence": {
+         "kind": "path",
+         "detail": "lib/arm64-v8a/libreactnative.so"
+        },
+        "paths": [
+         "lib/arm64-v8a/libreactnative.so"
+        ],
+        "bytes": 5900000
+       },
+       {
+        "kind": "library",
+        "name": "libsqlite3.so",
+        "fileKind": "executable",
+        "category": "other",
+        "ruleId": "lib.sqlite3",
+        "ruleSource": "libchecker-rules",
+        "evidence": {
+         "kind": "path",
+         "detail": "libsqlite3.so"
+        },
+        "paths": [
+         "lib/arm64-v8a/libsqlite3.so"
+        ],
+        "origin": "library",
+        "confidence": "high",
+        "bytes": 1300000
+       }
+      ],
+      "bytes": 9300000
+     },
+     {
+      "kind": "library",
+      "name": "index.android.bundle",
+      "fileKind": "script",
+      "origin": "bundled-app-code",
+      "confidence": "high",
+      "evidence": {
+       "kind": "location",
+       "detail": "assets/index.android.bundle"
+      },
+      "paths": [
+       "assets/index.android.bundle"
+      ],
+      "noModuleLayer": true,
+      "compressedBytes": 5100000,
+      "bytes": 14700000
+     },
+     {
+      "kind": "container",
+      "name": "x86_64",
+      "containerType": "abi",
+      "children": [
+       {
+        "kind": "library",
+        "name": "libhermes.so",
+        "fileKind": "executable",
+        "origin": "runtime",
+        "confidence": "high",
+        "evidence": {
+         "kind": "path",
+         "detail": "lib/x86_64/libhermes.so"
+        },
+        "paths": [
+         "lib/x86_64/libhermes.so"
+        ],
+        "bytes": 2247000
+       },
+       {
+        "kind": "library",
+        "name": "libreactnative.so",
+        "fileKind": "executable",
+        "origin": "runtime",
+        "confidence": "high",
+        "evidence": {
+         "kind": "path",
+         "detail": "lib/x86_64/libreactnative.so"
+        },
+        "paths": [
+         "lib/x86_64/libreactnative.so"
+        ],
+        "bytes": 6313000
+       },
+       {
+        "kind": "library",
+        "name": "libsqlite3.so",
+        "fileKind": "executable",
+        "category": "other",
+        "ruleId": "lib.sqlite3",
+        "ruleSource": "libchecker-rules",
+        "evidence": {
+         "kind": "path",
+         "detail": "libsqlite3.so"
+        },
+        "paths": [
+         "lib/x86_64/libsqlite3.so"
+        ],
+        "origin": "library",
+        "confidence": "high",
+        "bytes": 1391000
+       }
+      ],
+      "bytes": 9951000
+     }
+    ],
+    "bytes": 33951000
+   },
+   {
+    "kind": "library",
+    "name": "assets/fonts",
+    "fileKind": "font",
+    "evidence": {
+     "kind": "file-type",
+     "detail": "assets/fonts/"
+    },
+    "paths": [
+     "assets/fonts/"
+    ],
+    "origin": "asset",
+    "confidence": "medium",
+    "bytes": 620000
+   },
+   {
+    "kind": "container",
+    "name": "dex",
+    "containerType": "parsed-file",
+    "shortNameRatio": 0.0,
+    "paths": [
+     "classes.dex",
+     "classes2.dex"
+    ],
+    "children": [
+     {
+      "kind": "shared",
+      "name": "(shared)",
+      "bytes": 3400000
+     },
+     {
+      "kind": "parse-failed",
+      "name": "classes3.dex",
+      "paths": [
+       "classes3.dex"
+      ],
+      "failure": {
+       "parser": "dex",
+       "code": "E_CORRUPT_INPUT",
+       "offset": 112
+      },
+      "bytes": 8600000
+     },
+     {
+      "kind": "library",
+      "name": "com/example",
+      "origin": "app-code",
+      "confidence": "high",
+      "evidence": {
+       "kind": "metadata",
+       "detail": "AndroidManifest package com.example.notes"
+      },
+      "children": [
+       {
+        "kind": "module",
+        "name": "notes/MainActivity",
+        "fileKind": "executable",
+        "origin": "app-code",
+        "confidence": "high",
+        "bytes": 4212
+       },
+       {
+        "kind": "module",
+        "name": "notes/SyncService",
+        "fileKind": "executable",
+        "origin": "app-code",
+        "confidence": "high",
+        "bytes": 9870
+       }
+      ],
+      "bytes": 14082
+     },
+     {
+      "kind": "library",
+      "name": "com/facebook",
+      "category": "other",
+      "ruleId": "dex.facebook",
+      "ruleSource": "builtin",
+      "evidence": {
+       "kind": "prefix",
+       "detail": "com/facebook/"
+      },
+      "origin": "library",
+      "confidence": "medium",
+      "children": [
+       {
+        "kind": "module",
+        "name": "react/ReactActivity",
+        "fileKind": "executable",
+        "origin": "library",
+        "confidence": "medium",
+        "bytes": 3120
+       },
+       {
+        "kind": "module",
+        "name": "react/bridge/CatalystInstanceImpl",
+        "fileKind": "executable",
+        "origin": "library",
+        "confidence": "medium",
+        "bytes": 18444
+       }
+      ],
+      "bytes": 21564
+     },
+     {
+      "kind": "library",
+      "name": "q8",
+      "origin": "unidentified",
+      "confidence": "low",
+      "evidence": {
+       "kind": "default",
+       "detail": "no rule matched"
+      },
+      "children": [
+       {
+        "kind": "module",
+        "name": "a",
+        "fileKind": "executable",
+        "origin": "unidentified",
+        "confidence": "low",
+        "bytes": 1024
+       },
+       {
+        "kind": "module",
+        "name": "b",
+        "fileKind": "executable",
+        "origin": "unidentified",
+        "confidence": "low",
+        "bytes": 2048
+       }
+      ],
+      "bytes": 3072
+     }
+    ],
+    "bytes": 12038718
+   },
+   {
+    "kind": "library",
+    "name": "res",
+    "fileKind": "image",
+    "evidence": {
+     "kind": "file-type",
+     "detail": "res/"
+    },
+    "paths": [
+     "res/"
+    ],
+    "origin": "asset",
+    "confidence": "medium",
+    "bytes": 4400000
+   },
+   {
+    "kind": "library",
+    "name": "resources.arsc",
+    "fileKind": "localization",
+    "evidence": {
+     "kind": "file-type",
+     "detail": "resources.arsc"
+    },
+    "paths": [
+     "resources.arsc"
+    ],
+    "origin": "asset",
+    "confidence": "medium",
+    "bytes": 1900000
+   }
+  ],
+  "bytes": 53219718
+ }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "app-anatomy",
+  "version": "0.1.0",
+  "description": "See what apps are made of: runtime, libraries, own code and assets, with bytes. Scans every app on a Mac, or one .app, APK or IPA. Nothing is uploaded.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "bin": { "app-anatomy": "cli/main.mjs" },
+  "engines": { "node": ">=18" },
+  "files": [
+    "cli",
+    "host/loader.mjs",
+    "host/node-host.mjs",
+    "dist/anatomy_core.wasm",
+    "rules",
+    "site",
+    "!site/gallery",
+    "!site/README.md",
+    "!site/*.mjs",
+    "NOTICE"
+  ],
+  "keywords": ["electron", "flutter", "react-native", "apk", "ipa", "macos", "app-size", "bundle-size", "sdk-detection", "treemap"]
+}

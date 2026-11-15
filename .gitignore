@@ -1,0 +1,25 @@
+# 빌드 결과와 캐시 (다시 만들 수 있다)
+target/
+site-dist/
+
+# 개인 정보: 이 기기에 설치된 앱을 훑은 결과다. 공개하지 않는다.
+mymac-anatomy/result.html
+
+# 초기 실험의 빌드 결과. 이 기기의 경로가 들어 있다.
+wasm-proto/web/core.wasm
+
+# 작업 도구(gstack)의 기록과 임시 파일. 이 기기의 경로와 내부 검토 자료가 들어 있다.
+.gstack/
+
+.DS_Store
+
+# 맥 전체를 훑은 결과. 이 기기에 설치된 앱의 목록이 들어 있다.
+*.anatomy-scan.json
+
+# 내부 작업 메모와 초기 실험. 이 기기에만 둔다.
+app-anatomy-*.md
+TODOS.md
+CLAUDE.md
+.impeccable/
+wasm-proto/
+mymac-anatomy/

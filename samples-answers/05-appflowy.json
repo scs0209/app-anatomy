@@ -1,0 +1,173 @@
+{
+ "answerFormat": 1,
+ "status": "draft",
+ "sample": {
+  "id": "05-appflowy",
+  "app": "AppFlowy",
+  "version": "0.15.0",
+  "packaging": "macos-app",
+  "file": "AppFlowy-0.15.0-macos-arm64.zip",
+  "fileBytes": 120707326,
+  "sha256": "b8c1f5d174d4ff83fd77d768071c4ead8f3cbc9ef6a9c60402cebf5323935b19",
+  "source": "https://github.com/AppFlowy-IO/AppFlowy/releases",
+  "license": "AGPL-3.0"
+ },
+ "expected": {
+  "entryBytes": 297845536,
+  "runtimes": [
+   {
+    "runtime": "flutter",
+    "dissected": true
+   }
+  ],
+  "components": [
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/MacOS/AppFlowy"
+    },
+    "layer": "library",
+    "origin": "bundled-app-code",
+    "bytes": 157565872,
+    "status": "judgment",
+    "basis": "주 실행 파일",
+    "note": "정적으로 링크된 실행 파일은 안쪽을 보지 않는다"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/Frameworks/App.framework (App 스냅샷)"
+    },
+    "layer": "library",
+    "origin": "bundled-app-code",
+    "bytes": 49971024,
+    "status": "clear",
+    "basis": "Flutter 앱 스냅샷. 안쪽을 보지 않는다"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/Frameworks/App.framework (flutter_assets)"
+    },
+    "layer": "library",
+    "origin": "asset",
+    "bytes": 27277283,
+    "status": "clear",
+    "basis": "Flutter 에셋 묶음(확정: 묶음 전체가 에셋)",
+    "note": "안의 파일은 모듈 층에서 파일 종류로 구별한다"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/Frameworks/FlutterMacOS.framework"
+    },
+    "layer": "library",
+    "origin": "runtime",
+    "bytes": 14934491,
+    "status": "clear",
+    "basis": "런타임 엔진 프레임워크"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "PDFium"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 7059585,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "pdfium_dart"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 7059565,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "Harfbuzz"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 6795931,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "Mpv"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 3642817,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "Avcodec"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 3548649,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "Xml2"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 2044291,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "Sparkle"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 1440057,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "Freetype"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 1377803,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   }
+  ],
+  "listedBytes": 282717368,
+  "listedShare": 0.9492,
+  "facts": {
+   "otherFrameworks": {
+    "count": 52,
+    "bytes": 14493903,
+    "origin": "library"
+   },
+   "mainExecutableBytes": 157565872,
+   "smallResourceBytes": 135794,
+   "codeSignatureBytes": 30019
+  }
+ },
+ "surprisingFact": "실행 파일 하나가 157.6 MB(52.9%)다"
+}

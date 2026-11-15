@@ -1,0 +1,305 @@
+{
+ "formatVersion": 1,
+ "source": {
+  "id": "builtin",
+  "name": "App Anatomy built-in rules",
+  "license": "Apache-2.0",
+  "modified": false
+ },
+ "rules": [
+  {
+   "id": "dex.androidx",
+   "name": "AndroidX",
+   "kind": "library",
+   "category": "ui",
+   "match": [
+    {
+     "target": "dex-class",
+     "type": "prefix",
+     "value": "androidx/",
+     "packaging": [
+      "apk"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "dex.bugsnag",
+   "name": "Bugsnag",
+   "kind": "library",
+   "category": "analytics",
+   "match": [
+    {
+     "target": "dex-class",
+     "type": "prefix",
+     "value": "com/bugsnag/",
+     "packaging": [
+      "apk"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "dex.chromium",
+   "name": "Chromium / Cronet (Java side)",
+   "kind": "library",
+   "category": "network",
+   "match": [
+    {
+     "target": "dex-class",
+     "type": "prefix",
+     "value": "org/chromium/",
+     "packaging": [
+      "apk"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "dex.expo",
+   "name": "Expo modules",
+   "kind": "library",
+   "category": "other",
+   "match": [
+    {
+     "target": "dex-class",
+     "type": "prefix",
+     "value": "expo/modules/",
+     "packaging": [
+      "apk"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "dex.glide",
+   "name": "Glide (com.bumptech)",
+   "kind": "library",
+   "category": "ui",
+   "match": [
+    {
+     "target": "dex-class",
+     "type": "prefix",
+     "value": "com/bumptech/",
+     "packaging": [
+      "apk"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "dex.google",
+   "name": "Google libraries (com.google)",
+   "kind": "library",
+   "category": "other",
+   "match": [
+    {
+     "target": "dex-class",
+     "type": "prefix",
+     "value": "com/google/",
+     "packaging": [
+      "apk"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "dex.horcrux",
+   "name": "react-native-svg (com.horcrux)",
+   "kind": "library",
+   "category": "ui",
+   "match": [
+    {
+     "target": "dex-class",
+     "type": "prefix",
+     "value": "com/horcrux/",
+     "packaging": [
+      "apk"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "dex.jsoup",
+   "name": "jsoup",
+   "kind": "library",
+   "category": "other",
+   "match": [
+    {
+     "target": "dex-class",
+     "type": "prefix",
+     "value": "org/jsoup/",
+     "packaging": [
+      "apk"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "dex.kotlin",
+   "name": "Kotlin standard library",
+   "kind": "library",
+   "category": "other",
+   "match": [
+    {
+     "target": "dex-class",
+     "type": "prefix",
+     "value": "kotlin/",
+     "packaging": [
+      "apk"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "dex.kotlinx",
+   "name": "kotlinx libraries",
+   "kind": "library",
+   "category": "other",
+   "match": [
+    {
+     "target": "dex-class",
+     "type": "prefix",
+     "value": "kotlinx/",
+     "packaging": [
+      "apk"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "dex.maplibre",
+   "name": "MapLibre",
+   "kind": "library",
+   "category": "ui",
+   "match": [
+    {
+     "target": "dex-class",
+     "type": "prefix",
+     "value": "org/maplibre/",
+     "packaging": [
+      "apk"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "dex.mozilla",
+   "name": "Mozilla libraries (org.mozilla)",
+   "kind": "library",
+   "category": "other",
+   "match": [
+    {
+     "target": "dex-class",
+     "type": "prefix",
+     "value": "org/mozilla/",
+     "packaging": [
+      "apk"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "dex.okhttp",
+   "name": "OkHttp",
+   "kind": "library",
+   "category": "network",
+   "match": [
+    {
+     "target": "dex-class",
+     "type": "prefix",
+     "value": "okhttp3/",
+     "packaging": [
+      "apk"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "dex.rxjava",
+   "name": "RxJava (io.reactivex)",
+   "kind": "library",
+   "category": "other",
+   "match": [
+    {
+     "target": "dex-class",
+     "type": "prefix",
+     "value": "io/reactivex/",
+     "packaging": [
+      "apk"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "dex.spongycastle",
+   "name": "Spongy Castle",
+   "kind": "library",
+   "category": "other",
+   "match": [
+    {
+     "target": "dex-class",
+     "type": "prefix",
+     "value": "org/spongycastle/",
+     "packaging": [
+      "apk"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "dex.swmansion",
+   "name": "Software Mansion libraries",
+   "kind": "library",
+   "category": "ui",
+   "match": [
+    {
+     "target": "dex-class",
+     "type": "prefix",
+     "value": "com/swmansion/",
+     "packaging": [
+      "apk"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "dex.webrtc",
+   "name": "WebRTC (Java side)",
+   "kind": "library",
+   "category": "network",
+   "match": [
+    {
+     "target": "dex-class",
+     "type": "prefix",
+     "value": "org/webrtc/",
+     "packaging": [
+      "apk"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lib.tesseract-js-core",
+   "name": "Tesseract.js core (OCR engine)",
+   "kind": "library",
+   "category": "other",
+   "homepage": "https://github.com/naptha/tesseract.js-core",
+   "match": [
+    {
+     "target": "npm-package",
+     "type": "literal",
+     "value": "tesseract.js-core"
+    },
+    {
+     "target": "path",
+     "type": "prefix",
+     "value": "Contents/Resources/build/tesseract.js-core/",
+     "packaging": [
+      "macos-app"
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,234 @@
+{
+ "answerFormat": 1,
+ "status": "draft",
+ "sample": {
+  "id": "02-mattermost-desktop",
+  "app": "Mattermost Desktop",
+  "version": "6.3.2",
+  "packaging": "macos-app",
+  "file": "mattermost-desktop-6.3.2-mac-arm64.zip",
+  "fileBytes": 124322364,
+  "sha256": "7adb624266d125f9ac7d293cc742da52221f0e60991c0728de208c980da3ef33",
+  "source": "https://github.com/mattermost/desktop/releases",
+  "license": "Apache-2.0"
+ },
+ "expected": {
+  "entryBytes": 308562304,
+  "runtimes": [
+   {
+    "runtime": "electron",
+    "dissected": true
+   }
+  ],
+  "components": [
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/Frameworks/Electron Framework.framework"
+    },
+    "layer": "library",
+    "origin": "runtime",
+    "bytes": 290915152,
+    "status": "clear",
+    "basis": "런타임 엔진 프레임워크"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/Resources/app.asar (node_modules 밖)"
+    },
+    "layer": "library",
+    "origin": "bundled-app-code",
+    "bytes": 9567183,
+    "status": "judgment",
+    "basis": "asar 안에서 node_modules 밖에 있는 파일의 합",
+    "note": "번들러가 합친 JS에는 외부 코드가 섞여 있을 수 있다. 소스맵과 에셋도 이 합에 들어 있다"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "@koromix/koffi-darwin-x64 (unpacked)"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 1623334,
+    "status": "clear",
+    "basis": "app.asar.unpacked/node_modules/@koromix/koffi-darwin-x64",
+    "note": "확정된 표(app-anatomy-dissectors.md)에 따라 asar 안의 같은 패키지 노드에 합친다"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "@koromix/koffi-darwin-arm64 (unpacked)"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 1241998,
+    "status": "clear",
+    "basis": "app.asar.unpacked/node_modules/@koromix/koffi-darwin-arm64",
+    "note": "확정된 표(app-anatomy-dissectors.md)에 따라 asar 안의 같은 패키지 노드에 합친다"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "koffi"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 929068,
+    "status": "clear",
+    "basis": "asar 안의 node_modules/koffi"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "macos-notification-state (unpacked)"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 820677,
+    "status": "clear",
+    "basis": "app.asar.unpacked/node_modules/macos-notification-state",
+    "note": "확정된 표(app-anatomy-dissectors.md)에 따라 asar 안의 같은 패키지 노드에 합친다"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "windows-focus-assist (unpacked)"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 644158,
+    "status": "clear",
+    "basis": "app.asar.unpacked/node_modules/windows-focus-assist",
+    "note": "확정된 표(app-anatomy-dissectors.md)에 따라 asar 안의 같은 패키지 노드에 합친다"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "ReactiveObjC"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 374764,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "Squirrel"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 312091,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/Frameworks/Mattermost Helper (Renderer).app"
+    },
+    "layer": "container",
+    "origin": "runtime",
+    "bytes": 225831,
+    "status": "clear",
+    "basis": "Electron Helper 앱. 해부기가 소유를 선언한다",
+    "containerType": "nested-app"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/Frameworks/Mattermost Helper (Plugin).app"
+    },
+    "layer": "container",
+    "origin": "runtime",
+    "bytes": 225823,
+    "status": "clear",
+    "basis": "Electron Helper 앱. 해부기가 소유를 선언한다",
+    "containerType": "nested-app"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/Frameworks/Mattermost Helper (GPU).app"
+    },
+    "layer": "container",
+    "origin": "runtime",
+    "bytes": 225811,
+    "status": "clear",
+    "basis": "Electron Helper 앱. 해부기가 소유를 선언한다",
+    "containerType": "nested-app"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/Frameworks/Mattermost Helper.app"
+    },
+    "layer": "container",
+    "origin": "runtime",
+    "bytes": 225773,
+    "status": "clear",
+    "basis": "Electron Helper 앱. 해부기가 소유를 선언한다",
+    "containerType": "nested-app"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "Mantle"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 148326,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/MacOS/Mattermost"
+    },
+    "layer": "library",
+    "origin": "runtime",
+    "bytes": 53168,
+    "status": "clear",
+    "basis": "Electron의 시동 코드(확정: 런타임)"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "bindings"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 7566,
+    "status": "clear",
+    "basis": "asar 안의 node_modules/bindings"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "file-uri-to-path"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 3744,
+    "status": "clear",
+    "basis": "asar 안의 node_modules/file-uri-to-path"
+   }
+  ],
+  "listedBytes": 307544467,
+  "listedShare": 0.9967,
+  "facts": {
+   "mainExecutableBytes": 53168,
+   "packagesInAsar": 3,
+   "nodeModulesBytes": 940378,
+   "asarOverheadBytes": 115512,
+   "asarUnpackedBytes": 4467728,
+   "smallResourceBytes": 666558,
+   "codeSignatureBytes": 79195
+  }
+ },
+ "surprisingFact": "94.3%가 Electron이고 앱 자체는 10.6 MB(3.4%)다"
+}

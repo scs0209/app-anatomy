@@ -1,0 +1,314 @@
+{
+ "answerFormat": 1,
+ "status": "draft",
+ "sample": {
+  "id": "01-joplin",
+  "app": "Joplin",
+  "version": "3.7.22",
+  "packaging": "macos-app",
+  "file": "Joplin-3.7.22-arm64.zip",
+  "fileBytes": 203508269,
+  "sha256": "9906830034c6323ae77698a520c1299c49c70eefe62337f3b1019da1f082f48f",
+  "source": "https://github.com/laurent22/joplin/releases",
+  "license": null
+ },
+ "expected": {
+  "entryBytes": 613705107,
+  "runtimes": [
+   {
+    "runtime": "electron",
+    "dissected": true
+   }
+  ],
+  "components": [
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/Frameworks/Electron Framework.framework"
+    },
+    "layer": "library",
+    "origin": "runtime",
+    "bytes": 286337899,
+    "status": "clear",
+    "basis": "런타임 엔진 프레임워크"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "onnxruntime-web"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 134183677,
+    "status": "clear",
+    "basis": "asar 안의 node_modules/onnxruntime-web"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/Resources/app.asar (node_modules 밖)"
+    },
+    "layer": "library",
+    "origin": "bundled-app-code",
+    "bytes": 75031997,
+    "status": "judgment",
+    "basis": "asar 안에서 node_modules 밖에 있는 파일의 합",
+    "note": "번들러가 합친 JS에는 외부 코드가 섞여 있을 수 있다. 소스맵과 에셋도 이 합에 들어 있다"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/Resources/build/tesseract.js-core/"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 45262431,
+    "status": "clear",
+    "basis": "손으로 쓴 내장 규칙 lib.tesseract-js-core",
+    "ruleSource": "builtin",
+    "ruleId": "lib.tesseract-js-core"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "onnxruntime-node (unpacked)"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 36292827,
+    "status": "clear",
+    "basis": "app.asar.unpacked/node_modules/onnxruntime-node",
+    "note": "확정된 표(app-anatomy-dissectors.md)에 따라 asar 안의 같은 패키지 노드에 합친다"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "@huggingface/transformers"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 8675471,
+    "status": "clear",
+    "basis": "asar 안의 node_modules/@huggingface/transformers"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "sqlite3 (unpacked)"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 5161096,
+    "status": "clear",
+    "basis": "app.asar.unpacked/node_modules/sqlite3",
+    "note": "확정된 표(app-anatomy-dissectors.md)에 따라 asar 안의 같은 패키지 노드에 합친다"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/Resources/build (tesseract.js-core 밖)"
+    },
+    "layer": "library",
+    "origin": "unidentified",
+    "bytes": 4163086,
+    "status": "clear",
+    "basis": "규칙에 없다(확정: 미식별이 정답)",
+    "note": "기본 플러그인, pdf.worker, 7zip 등"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "protobufjs"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 2906767,
+    "status": "clear",
+    "basis": "asar 안의 node_modules/protobufjs"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "@joplin/onenote-converter"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 2399408,
+    "status": "clear",
+    "basis": "asar 안의 node_modules/@joplin/onenote-converter"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "node-gyp"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 1727119,
+    "status": "clear",
+    "basis": "asar 안의 node_modules/node-gyp"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "@xyflow/react"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 845865,
+    "status": "clear",
+    "basis": "asar 안의 node_modules/@xyflow/react"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "@xyflow/system"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 508811,
+    "status": "clear",
+    "basis": "asar 안의 node_modules/@xyflow/system"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "onnxruntime-common"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 405345,
+    "status": "clear",
+    "basis": "asar 안의 node_modules/onnxruntime-common"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "ReactiveObjC"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 374444,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "Squirrel"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 311931,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/Frameworks/Joplin Helper (Renderer).app"
+    },
+    "layer": "container",
+    "origin": "runtime",
+    "bytes": 226191,
+    "status": "clear",
+    "basis": "Electron Helper 앱. 해부기가 소유를 선언한다",
+    "containerType": "nested-app"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/Frameworks/Joplin Helper (Plugin).app"
+    },
+    "layer": "container",
+    "origin": "runtime",
+    "bytes": 226183,
+    "status": "clear",
+    "basis": "Electron Helper 앱. 해부기가 소유를 선언한다",
+    "containerType": "nested-app"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/Frameworks/Joplin Helper (GPU).app"
+    },
+    "layer": "container",
+    "origin": "runtime",
+    "bytes": 226155,
+    "status": "clear",
+    "basis": "Electron Helper 앱. 해부기가 소유를 선언한다",
+    "containerType": "nested-app"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/Frameworks/Joplin Helper.app"
+    },
+    "layer": "container",
+    "origin": "runtime",
+    "bytes": 226133,
+    "status": "clear",
+    "basis": "Electron Helper 앱. 해부기가 소유를 선언한다",
+    "containerType": "nested-app"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "sqlite-vec-darwin-arm64 (unpacked)"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 180598,
+    "status": "clear",
+    "basis": "app.asar.unpacked/node_modules/sqlite-vec-darwin-arm64",
+    "note": "확정된 표(app-anatomy-dissectors.md)에 따라 asar 안의 같은 패키지 노드에 합친다"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "Mantle"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 148230,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "keytar (unpacked)"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 120776,
+    "status": "clear",
+    "basis": "app.asar.unpacked/node_modules/keytar",
+    "note": "확정된 표(app-anatomy-dissectors.md)에 따라 asar 안의 같은 패키지 노드에 합친다"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/MacOS/Joplin"
+    },
+    "layer": "library",
+    "origin": "runtime",
+    "bytes": 53024,
+    "status": "clear",
+    "basis": "Electron의 시동 코드(확정: 런타임)"
+   }
+  ],
+  "listedBytes": 605995464,
+  "listedShare": 0.9874,
+  "facts": {
+   "mainExecutableBytes": 53024,
+   "packagesInAsar": 199,
+   "nodeModulesBytes": 156879822,
+   "asarOverheadBytes": 1683540,
+   "asarUnpackedBytes": 41755297,
+   "smallResourceBytes": 756895,
+   "codeSignatureBytes": 35586
+  }
+ },
+ "surprisingFact": "메모 앱인데 AI 추론 엔진과 글자 인식 엔진이 224 MB(37%)다"
+}

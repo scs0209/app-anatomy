@@ -1,0 +1,251 @@
+// 생성된 파일이다. 직접 고치지 않는다. 원본은 src/lib.rs, 생성은 generate.sh.
+
+/** 결과 JSON의 최상위. */
+export interface AnatomyResult {
+  completeness: Completeness;
+  /** ABI나 아키텍처가 둘 이상일 때의 "벌 요약". 한 벌뿐이면 빈 배열. */
+  copies: CopySummary[];
+  input: InputInfo;
+  /** 입력 전체의 SHA-256(16진수 소문자 64자). 아직 계산 중이면 null. 폴더 입력은 정렬된 경로와 파일별 해시로 만든 매니페스트의 해시다. */
+  inputSha256: string | null;
+  /** 논리 트리의 뿌리. `kind`는 항상 `app`이다. */
+  root: Node;
+  /** 적용한 규칙 묶음의 버전. 스냅샷 비교에서는 뺀다. */
+  rulesVersion: string;
+  /** 감지한 런타임. 바이트가 큰 순서. 하나도 없으면 `native` 하나가 들어간다. */
+  runtimes: RuntimeSummary[];
+  /** 스키마 버전. 뷰어는 자기보다 큰 값을 만나면 그리지 않는다. */
+  schemaVersion: number;
+  /** 결과를 만든 도구의 버전. 스냅샷 비교에서는 뺀다. */
+  toolVersion: string;
+  warnings: Warning[];
+}
+
+export type Category =
+  | "ads"
+  | "analytics"
+  | "payment"
+  | "ui"
+  | "network"
+  | "other";
+
+/** 완전성 요약. 모든 값은 압축을 푼 바이트다. */
+export interface Completeness {
+  /** 안쪽을 보지 못한 덩어리(출처가 `bundled-app-code`인 잎)의 합. */
+  opaqueBytes: number;
+  /** `overhead` 노드의 합. */
+  overheadBytes: number;
+  /** `parse-failed` 노드의 수. */
+  parseFailedNodes: number;
+  /** `shared` 노드의 합. */
+  sharedBytes: number;
+  /** 뿌리의 바이트와 같다. */
+  totalBytes: number;
+  /** 출처가 `unidentified`인 잎의 합. */
+  unidentifiedBytes: number;
+}
+
+export type Confidence =
+  | "high"
+  | "medium"
+  | "low";
+
+export type ContainerType =
+  /** Android의 ABI 폴더 (`lib/arm64-v8a` 등). */
+  | "abi"
+  /** fat Mach-O의 아키텍처 조각. */
+  | "arch"
+  /** 중첩 `.app`, `.appex`, `.xpc`. */
+  | "nested-app"
+  /** 안쪽을 해부한 파일 (`app.asar`, DEX 파일들). 그 파일의 `overhead`와 `shared`가 이 아래에 놓인다. */
+  | "parsed-file"
+  /** 안쪽을 열지 않는 묶음 (Watch 앱, APK 안의 `.jar` 등). */
+  | "opaque";
+
+/** 같은 코드의 한 벌 (ABI 하나 또는 아키텍처 하나). */
+export interface CopySummary {
+  /** 이 이름의 묶음 노드 전체의 합. */
+  bytes: number;
+  containerType: ContainerType;
+  /** 예: `arm64-v8a`, `x86_64`, `arm64`. */
+  name: string;
+}
+
+/** 왜 그렇게 판단했는지. 화면의 문장은 뷰어가 `kind`로 만든다. */
+export interface Evidence {
+  /** 일치한 경로, 접두어, 이름 등. 앱에서 뽑은 내용물은 넣지 않는다. */
+  detail: string;
+  kind: EvidenceKind;
+}
+
+export type EvidenceKind =
+  /** 메타데이터가 이름을 명시함 (확신도 높음). */
+  | "metadata"
+  /** 경로가 일치함. */
+  | "path"
+  /** 이름 접두어가 일치함. */
+  | "prefix"
+  /** 파일 안의 문자열 표식뿐임 (확신도 낮음). */
+  | "string-marker"
+  /** 파일의 위치로 판단함 (예: 주 실행 파일, `node_modules` 밖). */
+  | "location"
+  /** 확장자나 폴더로 판단함 (에셋). */
+  | "file-type"
+  /** 다른 것이 감지되지 않아 붙인 기본값. */
+  | "default";
+
+/** 파일 종류. 확장자와 경로만으로 정한다. */
+export type FileKind =
+  | "executable"
+  | "script"
+  | "sourcemap"
+  | "wasm"
+  | "image"
+  | "font"
+  | "media"
+  | "localization"
+  | "data"
+  | "other";
+
+/** 입력에 대한 사실. 사용자의 기기 경로는 담지 않는다. */
+export interface InputInfo {
+  /** 번들 식별자 또는 Android 패키지 이름. */
+  appId?: string;
+  /** 앱이 스스로 밝힌 버전 문자열. */
+  appVersion?: string;
+  /** 폴더 입력에서 링크를 구별하지 못해 총량이 정확하지 않을 수 있으면 true. */
+  approximate: boolean;
+  /** 화면에 보일 앱 이름. 번들 이름 또는 파일 이름에서 온다. */
+  name: string;
+  packaging: Packaging;
+}
+
+export interface LinkInfo {
+  /** 가리키는 곳이 입력 밖이면 true. */
+  external: boolean;
+  /** 링크가 가리키는 경로 (입력에 적힌 그대로). */
+  target: string;
+}
+
+/** 논리 트리의 노드. */
+export interface Node {
+  /** 압축을 푼 바이트 수. 자식이 있으면 자식의 합과 같다. 2^53 미만이다. */
+  bytes: number;
+  /** 규칙이 정한 분류. 규칙에 맞은 노드에만 있다. */
+  category?: Category;
+  /** 자식. 이름의 UTF-8 바이트 순서로 정렬한다. 잎이면 쓰지 않는다. */
+  children?: Node[];
+  /** 압축된 크기(보조 지표). ZIP 항목에서 온 노드에만 있다. */
+  compressedBytes?: number;
+  /** 출처 판단의 확신도. 출처가 있을 때만 있다. */
+  confidence?: Confidence;
+  /** `kind`가 `container`일 때만 있다. */
+  containerType?: ContainerType;
+  /** 실행 코드가 암호화돼 있으면 true (iOS의 `cryptid`). */
+  encrypted?: boolean;
+  evidence?: Evidence;
+  /** `kind`가 `parse-failed`일 때만 있다. */
+  failure?: ParseFailure;
+  /** 파일 종류. 잎 노드에만 있다. 파일의 일부인 잎은 그 파일의 종류를 물려받는다. */
+  fileKind?: FileKind;
+  kind: NodeKind;
+  /** `kind`가 `link`일 때만 있다. */
+  link?: LinkInfo;
+  /** 형제끼리 겹치지 않는 이름. 뿌리부터의 이름 목록이 노드의 주소다. */
+  name: string;
+  /** 한 덩어리로 묶여 있어 모듈 층이 없으면 true. */
+  noModuleLayer?: boolean;
+  /** 출처. `container`, `overhead`, `shared`, `link`, `parse-failed`에는 없다. */
+  origin?: Origin;
+  /** 이 노드를 이루는 입력 안의 경로. 부모와 같으면 쓰지 않는다. */
+  paths?: string[];
+  /** 맞은 규칙의 식별자. */
+  ruleId?: string;
+  /** 맞은 규칙의 출처. 예: `builtin`, `libchecker-rules`, `user`. */
+  ruleSource?: string;
+  /** DEX의 `parsed-file` 묶음에서 이름이 두 글자 이하인 클래스의 비율(0~1). */
+  shortNameRatio?: number;
+}
+
+/** 노드의 종류. 앞의 넷은 층이다(앱 1, 런타임 2, 라이브러리 3, 모듈 4). 나머지는 층을 더하지 않고 부모와 같은 층에 놓인다. */
+export type NodeKind =
+  | "app"
+  | "runtime"
+  | "library"
+  | "module"
+  /** 묶음. 중첩 앱, 아키텍처 조각, ABI 폴더, 해부한 파일, 안쪽을 열지 않는 묶음. */
+  | "container"
+  /** 어느 구성 요소에도 속하지 않는 바이트 (헤더, 패딩, 서명, ZIP 목록). */
+  | "overhead"
+  /** 여러 구성 요소가 함께 쓰는 바이트 (DEX의 문자열 표 등). */
+  | "shared"
+  /** 링크. 바이트는 0이다. */
+  | "link"
+  /** 안쪽 파서가 실패한 덩어리. 바이트는 그 덩어리의 크기다. */
+  | "parse-failed";
+
+/** 출처. 화면의 색이 이 값을 따른다. */
+export type Origin =
+  /** 앱 자체의 코드. */
+  | "app-code"
+  /** 앱 코드가 한 덩어리로 묶인 것. 외부 코드가 섞여 있을 수 있다. */
+  | "bundled-app-code"
+  /** 외부 라이브러리. */
+  | "library"
+  /** 런타임. */
+  | "runtime"
+  /** 에셋 (이미지, 글꼴, 소리, 영상, 현지화 파일 등). */
+  | "asset"
+  /** 규칙에 없는 부분. 오류가 아니다. */
+  | "unidentified";
+
+export type Packaging =
+  | "macos-app"
+  | "apk"
+  | "ipa";
+
+export interface ParseFailure {
+  /** 오류 코드. 예: `E_CORRUPT_INPUT`, `E_LIMIT_EXCEEDED`. */
+  code: string;
+  /** 실패한 위치(그 덩어리 안의 바이트 오프셋). */
+  offset?: number;
+  /** 실패한 파서. 예: `asar`, `dex`, `macho`, `axml`, `plist`. */
+  parser: string;
+}
+
+/** 감지할 수 있는 런타임. 감지만 하는 런타임은 표본으로 표식을 확인한 것만 실제로 나온다. */
+export type Runtime =
+  | "electron"
+  | "flutter"
+  | "react-native"
+  | "cef"
+  | "qt"
+  | "unity"
+  | "dotnet"
+  | "tauri"
+  | "cordova"
+  /** 다른 런타임을 하나도 감지하지 못했을 때의 기본값. */
+  | "native"
+  /** Android에서는 Jetpack Compose와 구별되지 않는다. */
+  | "compose";
+
+export interface RuntimeSummary {
+  /** 이 런타임이 소유한 바이트. 감지만 한 런타임은 0일 수 있다. */
+  bytes: number;
+  confidence: Confidence;
+  /** 해부하는 런타임이면 true, 감지만 하는 런타임이면 false. */
+  dissected: boolean;
+  evidence: Evidence;
+  runtime: Runtime;
+  /** 런타임의 버전을 읽었으면 적는다. */
+  version?: string;
+}
+
+export interface Warning {
+  /** 안정된 코드. 예: `W_IPA_NO_PAYLOAD`, `W_PARSE_FAILED`. */
+  code: string;
+  /** 사람이 읽는 영어 문장. 기기 경로와 앱의 내용물은 넣지 않는다. */
+  message: string;
+  /** 관련된 입력 안의 경로. */
+  path?: string;
+}

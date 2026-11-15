@@ -1,0 +1,237 @@
+{
+ "answerFormat": 1,
+ "status": "draft",
+ "sample": {
+  "id": "10-newpipe",
+  "app": "NewPipe",
+  "version": "0.29.3",
+  "packaging": "apk",
+  "file": "NewPipe_v0.29.3.apk",
+  "fileBytes": 16980865,
+  "sha256": "0ab2b9b5103bd3173cb4540f9a2fe660d93a44ac17254e7d13b26d1d8f012192",
+  "source": "https://github.com/TeamNewPipe/NewPipe/releases",
+  "license": "GPL-3.0"
+ },
+ "expected": {
+  "entryBytes": 25281876,
+  "runtimes": [
+   {
+    "runtime": "compose",
+    "dissected": false,
+    "note": "확정된 결정(Android에서도 Compose를 감지)에 따라 native가 아니라 compose로 나온다. Jetpack Compose와 구별되지 않는다. 확신도는 낮음"
+   }
+  ],
+  "components": [
+   {
+    "match": {
+     "target": "path",
+     "value": "resources.arsc"
+    },
+    "layer": "library",
+    "origin": "asset",
+    "bytes": 5277188,
+    "status": "clear",
+    "basis": "Android 리소스 표"
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libsqliteJni.so"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 4866800,
+    "status": "clear",
+    "basis": "LibChecker 규칙 lc.84039219-839b-48eb-98c3-d48ae8bf8b17 (Jetpack SQLite)",
+    "ruleSource": "libchecker-rules",
+    "ruleId": "lc.84039219-839b-48eb-98c3-d48ae8bf8b17",
+    "abiCount": 4
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "com/google/"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 1648975,
+    "status": "judgment",
+    "basis": "널리 알려진 패키지 접두어"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "androidx/compose/"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 1313169,
+    "status": "judgment",
+    "basis": "널리 알려진 패키지 접두어"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "res"
+    },
+    "layer": "library",
+    "origin": "asset",
+    "bytes": 1040423,
+    "status": "clear",
+    "basis": "Android 리소스"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "org/schabi/"
+    },
+    "layer": "library",
+    "origin": "app-code",
+    "bytes": 817410,
+    "status": "clear",
+    "basis": "매니페스트의 패키지 이름 org.schabi.newpipe"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "org/mozilla/"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 625942,
+    "status": "judgment",
+    "basis": "널리 알려진 패키지 접두어"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "assets/composeResources"
+    },
+    "layer": "library",
+    "origin": "asset",
+    "bytes": 538466,
+    "status": "judgment",
+    "basis": "assets/ 아래(계획 9.1: 경로로 에셋 판정)"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "j$/util/"
+    },
+    "layer": "library",
+    "origin": "unidentified",
+    "bytes": 202691,
+    "status": "clear",
+    "basis": "규칙에 없다(확정: 미식별이 정답)"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "androidx/appcompat/"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 192017,
+    "status": "judgment",
+    "basis": "널리 알려진 패키지 접두어"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "newpipe/shared/"
+    },
+    "layer": "library",
+    "origin": "unidentified",
+    "bytes": 186106,
+    "status": "clear",
+    "basis": "규칙에 없다(확정: 미식별이 정답)"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "j$/time/"
+    },
+    "layer": "library",
+    "origin": "unidentified",
+    "bytes": 182625,
+    "status": "clear",
+    "basis": "규칙에 없다(확정: 미식별이 정답)"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "org/jsoup/"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 146659,
+    "status": "judgment",
+    "basis": "널리 알려진 패키지 접두어"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "(패키지 마디가 둘 미만인 클래스)"
+    },
+    "layer": "library",
+    "origin": "unidentified",
+    "bytes": 145651,
+    "status": "clear",
+    "basis": "이름이 줄여진(난독화된) 클래스(확정: 미식별이 정답)",
+    "note": "도구가 여기에 라이브러리 이름을 붙이면 오탐으로 센다"
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libandroidx.graphics.path.so"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 37392,
+    "status": "clear",
+    "basis": "LibChecker 규칙 lc.71464fa3-a55f-4fce-a805-340482102a77 (Jetpack Graphics)",
+    "ruleSource": "libchecker-rules",
+    "ruleId": "lc.71464fa3-a55f-4fce-a805-340482102a77",
+    "abiCount": 4
+   }
+  ],
+  "listedBytes": 17221514,
+  "listedShare": 0.6812,
+  "facts": {
+   "abis": [
+    "arm64-v8a",
+    "armeabi-v7a",
+    "x86",
+    "x86_64"
+   ],
+   "copies": [
+    {
+     "containerType": "abi",
+     "name": "arm64-v8a",
+     "bytes": 1291552
+    },
+    {
+     "containerType": "abi",
+     "name": "armeabi-v7a",
+     "bytes": 1262144
+    },
+    {
+     "containerType": "abi",
+     "name": "x86",
+     "bytes": 1150048
+    },
+    {
+     "containerType": "abi",
+     "name": "x86_64",
+     "bytes": 1200448
+    }
+   ],
+   "nativeLibBytes": 4904192,
+   "dexBytes": 12511028,
+   "dexSharedBytes": 4766042,
+   "appPackagePrefix": "org/schabi",
+   "dexShortNamePackageBytes": 647
+  }
+ },
+ "surprisingFact": "둘째로 큰 조각이 문자열 표(resources.arsc, 5.3 MB)다"
+}

@@ -1,0 +1,149 @@
+{
+ "answerFormat": 1,
+ "status": "draft",
+ "sample": {
+  "id": "07-mattermost-mobile",
+  "app": "Mattermost Mobile",
+  "version": "2.45.1",
+  "packaging": "ipa",
+  "file": "Mattermost-unsigned.ipa",
+  "fileBytes": 47056770,
+  "sha256": "a4d7b5bb6252f2f14960a6553c4e7b0475a0352caf065c7846d5fae955a2183a",
+  "source": "https://github.com/mattermost/mattermost-mobile/releases",
+  "license": "Apache-2.0"
+ },
+ "expected": {
+  "entryBytes": 133717240,
+  "runtimes": [
+   {
+    "runtime": "react-native",
+    "dissected": true
+   }
+  ],
+  "components": [
+   {
+    "match": {
+     "target": "path",
+     "value": "Mattermost"
+    },
+    "layer": "library",
+    "origin": "bundled-app-code",
+    "bytes": 49571840,
+    "status": "judgment",
+    "basis": "주 실행 파일",
+    "note": "정적으로 링크된 실행 파일은 안쪽을 보지 않는다"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "main.jsbundle"
+    },
+    "layer": "library",
+    "origin": "bundled-app-code",
+    "bytes": 31077880,
+    "status": "clear",
+    "basis": "React Native JS 번들"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "WebRTC"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 10059798,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "PlugIns/MattermostShare.appex/MattermostShare"
+    },
+    "layer": "library",
+    "origin": "bundled-app-code",
+    "bytes": 8952832,
+    "status": "clear",
+    "basis": "앱 확장의 실행 파일(확정: 묶음에는 출처를 적지 않고 안쪽만 적는다)"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "PlugIns/NotificationService.appex/NotificationService"
+    },
+    "layer": "library",
+    "origin": "bundled-app-code",
+    "bytes": 8248392,
+    "status": "clear",
+    "basis": "앱 확장의 실행 파일(확정: 묶음에는 출처를 적지 않고 안쪽만 적는다)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "IntuneMAMSwift"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 8127107,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "Frameworks/hermesvm.framework"
+    },
+    "layer": "library",
+    "origin": "runtime",
+    "bytes": 4821773,
+    "status": "clear",
+    "basis": "런타임 엔진 프레임워크"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "Assets.car"
+    },
+    "layer": "library",
+    "origin": "asset",
+    "bytes": 3190584,
+    "status": "clear",
+    "basis": "에셋(확장자와 경로)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "IntuneMAMSwiftStub"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 112725,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   }
+  ],
+  "listedBytes": 124162931,
+  "listedShare": 0.9285,
+  "facts": {
+   "mainExecutableBytes": 49571840,
+   "smallResourceBytes": 4406616,
+   "appExtensions": [
+    {
+     "name": "MattermostShare.appex",
+     "bytes": 14088101,
+     "executableBytes": 8952832,
+     "containerType": "nested-app"
+    },
+    {
+     "name": "NotificationService.appex",
+     "bytes": 8255990,
+     "executableBytes": 8248392,
+     "containerType": "nested-app"
+    }
+   ],
+   "codeSignatureBytes": 0,
+   "hasPayloadFolder": false
+  }
+ },
+ "surprisingFact": "네이티브 실행 파일(49.6 MB)이 JS 번들(31.1 MB)보다 크다"
+}

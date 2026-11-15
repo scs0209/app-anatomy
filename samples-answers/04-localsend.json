@@ -1,0 +1,249 @@
+{
+ "answerFormat": 1,
+ "status": "draft",
+ "sample": {
+  "id": "04-localsend",
+  "app": "LocalSend",
+  "version": "1.18.2",
+  "packaging": "apk",
+  "file": "LocalSend-1.18.2-android-arm64v8.apk",
+  "fileBytes": 46558706,
+  "sha256": "82ec3568fba2aa5295b9aae8b76f701d7a4703d86b9f8bad749472038fbaeab3",
+  "source": "https://github.com/localsend/localsend/releases",
+  "license": "Apache-2.0"
+ },
+ "expected": {
+  "entryBytes": 50120544,
+  "runtimes": [
+   {
+    "runtime": "flutter",
+    "dissected": true
+   }
+  ],
+  "components": [
+   {
+    "match": {
+     "target": "file-name",
+     "value": "librust_lib_localsend_app.so"
+    },
+    "layer": "library",
+    "origin": "unidentified",
+    "bytes": 16722000,
+    "status": "clear",
+    "basis": "규칙에 없다(확정: 미식별이 정답)",
+    "note": "앱이 직접 빌드한 네이티브 코드로 보인다. 도구는 이름만으로 그렇게 단정하지 않는다",
+    "abiCount": 1
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libapp.so"
+    },
+    "layer": "library",
+    "origin": "bundled-app-code",
+    "bytes": 14549936,
+    "status": "clear",
+    "basis": "Flutter 앱 스냅샷. 안쪽을 보지 않는다",
+    "abiCount": 1
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libflutter.so"
+    },
+    "layer": "library",
+    "origin": "runtime",
+    "bytes": 11317744,
+    "status": "clear",
+    "basis": "런타임 엔진 라이브러리",
+    "abiCount": 1
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "assets/flutter_assets"
+    },
+    "layer": "library",
+    "origin": "asset",
+    "bytes": 3144360,
+    "status": "clear",
+    "basis": "Flutter 에셋 묶음(확정: 묶음 전체가 에셋)"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "(패키지 마디가 둘 미만인 클래스)"
+    },
+    "layer": "library",
+    "origin": "unidentified",
+    "bytes": 1901039,
+    "status": "clear",
+    "basis": "이름이 줄여진(난독화된) 클래스(확정: 미식별이 정답)",
+    "note": "도구가 여기에 라이브러리 이름을 붙이면 오탐으로 센다"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "resources.arsc"
+    },
+    "layer": "library",
+    "origin": "asset",
+    "bytes": 564976,
+    "status": "clear",
+    "basis": "Android 리소스 표"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "res"
+    },
+    "layer": "library",
+    "origin": "asset",
+    "bytes": 405138,
+    "status": "clear",
+    "basis": "Android 리소스"
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libdartjni.so"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 131128,
+    "status": "clear",
+    "basis": "LibChecker 규칙 lc.978d1814-dda5-40cf-9339-0f9052ba6d5f (Dart JNI)",
+    "ruleSource": "libchecker-rules",
+    "ruleId": "lc.978d1814-dda5-40cf-9339-0f9052ba6d5f",
+    "abiCount": 1
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "androidx/datastore/"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 70907,
+    "status": "judgment",
+    "basis": "널리 알려진 패키지 접두어"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "io/flutter/"
+    },
+    "layer": "library",
+    "origin": "runtime",
+    "bytes": 66762,
+    "status": "clear",
+    "basis": "런타임의 자바 쪽 코드(확정: 런타임)"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "com/google/"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 62709,
+    "status": "judgment",
+    "basis": "널리 알려진 패키지 접두어"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "androidx/appcompat/"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 46247,
+    "status": "judgment",
+    "basis": "널리 알려진 패키지 접두어"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "com/bumptech/"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 27041,
+    "status": "judgment",
+    "basis": "널리 알려진 패키지 접두어"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "androidx/recyclerview/"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 21352,
+    "status": "judgment",
+    "basis": "널리 알려진 패키지 접두어"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "androidx/lifecycle/"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 17016,
+    "status": "judgment",
+    "basis": "널리 알려진 패키지 접두어"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "androidx/core/"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 16781,
+    "status": "judgment",
+    "basis": "널리 알려진 패키지 접두어"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "org/localsend/"
+    },
+    "layer": "library",
+    "origin": "app-code",
+    "bytes": 7585,
+    "status": "clear",
+    "basis": "매니페스트의 패키지 이름 org.localsend.localsend_app"
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libdatastore_shared_counter.so"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 7112,
+    "status": "clear",
+    "basis": "LibChecker 규칙 lc.17b3384c-87cb-4382-80bb-ce10cea77e50 (Jetpack DataStore)",
+    "ruleSource": "libchecker-rules",
+    "ruleId": "lc.17b3384c-87cb-4382-80bb-ce10cea77e50",
+    "abiCount": 1
+   }
+  ],
+  "listedBytes": 49079833,
+  "listedShare": 0.9792,
+  "facts": {
+   "abis": [
+    "arm64-v8a"
+   ],
+   "copies": [],
+   "nativeLibBytes": 42727920,
+   "dexBytes": 3179884,
+   "dexSharedBytes": 892819,
+   "appPackagePrefix": "org/localsend",
+   "dexShortNamePackageBytes": 0
+  }
+ },
+ "surprisingFact": "가장 큰 조각이 Rust 라이브러리(16.7 MB)로 Flutter 엔진보다 크다"
+}

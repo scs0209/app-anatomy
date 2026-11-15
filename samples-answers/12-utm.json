@@ -1,0 +1,416 @@
+{
+ "answerFormat": 1,
+ "status": "draft",
+ "sample": {
+  "id": "12-utm",
+  "app": "UTM",
+  "version": "5.0.8",
+  "packaging": "ipa",
+  "file": "UTM.ipa",
+  "fileBytes": 150556413,
+  "sha256": "4875a1ec869278fb173b37467388ea627bfa6d95f1d64501bc41bb86dd7d53b2",
+  "source": "https://github.com/utmapp/UTM/releases",
+  "license": "Apache-2.0"
+ },
+ "expected": {
+  "entryBytes": 824772128,
+  "runtimes": [
+   {
+    "runtime": "native",
+    "dissected": true
+   }
+  ],
+  "components": [
+   {
+    "match": {
+     "target": "path",
+     "value": "qemu"
+    },
+    "layer": "library",
+    "origin": "unidentified",
+    "bytes": 331043489,
+    "status": "clear",
+    "basis": "규칙에 없다(확정: 미식별이 정답)",
+    "note": "펌웨어 이미지 묶음이다. 확장자가 에셋 목록에 없고 규칙도 없어서 도구가 낼 값은 미식별이다"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-aarch64-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 30307450,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "dxmt-native"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 29110872,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-arm-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 27577858,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-x86_64-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 24821688,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-i386-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 24770308,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-ppc64-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 15300518,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-xtensa-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 15178296,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-xtensaeb-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 15037212,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "vulkan_kosmickrisp"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 14867430,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-riscv64-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 14488538,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-riscv32-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 14368906,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-ppc-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 14188466,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-mips64el-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 13891740,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-loongarch64-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 13608866,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-mips64-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 12513000,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-mips-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 12400260,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-mipsel-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 12399864,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-sparc64-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 11432970,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-hppa-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 11223988,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-sh4eb-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 11137078,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-sh4-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 11136658,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-alpha-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 11135526,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-s390x-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 10981734,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-or1k-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 10964004,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "UTM"
+    },
+    "layer": "library",
+    "origin": "bundled-app-code",
+    "bytes": 10104848,
+    "status": "judgment",
+    "basis": "주 실행 파일",
+    "note": "정적으로 링크된 실행 파일은 안쪽을 보지 않는다"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-m68k-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 8762196,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-sparc-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 8121398,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-microblaze-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 7704560,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-microblazeel-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 7687988,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "qemu-tricore-softmmu"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 7464538,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "GLESv2"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 5981166,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "MoltenVK"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 4937540,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "virglrenderer.1"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 4584560,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   }
+  ],
+  "listedBytes": 779235513,
+  "listedShare": 0.9448,
+  "facts": {
+   "otherFrameworks": {
+    "count": 49,
+    "bytes": 33511126,
+    "origin": "library"
+   },
+   "mainExecutableBytes": 10104848,
+   "smallResourceBytes": 12022301,
+   "codeSignatureBytes": 0,
+   "hasPayloadFolder": true
+  }
+ },
+ "surprisingFact": "UTM 자신의 실행 파일은 10.1 MB(1.2%)이고 나머지는 에뮬레이터와 펌웨어다"
+}

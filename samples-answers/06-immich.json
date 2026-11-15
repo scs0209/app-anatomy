@@ -1,0 +1,317 @@
+{
+ "answerFormat": 1,
+ "status": "draft",
+ "sample": {
+  "id": "06-immich",
+  "app": "Immich",
+  "version": "3.4.1",
+  "packaging": "apk",
+  "file": "app-arm64-v8a-release.apk",
+  "fileBytes": 71851873,
+  "sha256": "fae6c0f77a714b0c99ef6eb7e278ce9650b509ead00b9ecb15ffc2ae9f6c71a5",
+  "source": "https://github.com/immich-app/immich/releases",
+  "license": "AGPL-3.0"
+ },
+ "expected": {
+  "entryBytes": 83152036,
+  "runtimes": [
+   {
+    "runtime": "flutter",
+    "dissected": true
+   }
+  ],
+  "components": [
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libapp.so"
+    },
+    "layer": "library",
+    "origin": "bundled-app-code",
+    "bytes": 25559944,
+    "status": "clear",
+    "basis": "Flutter 앱 스냅샷. 안쪽을 보지 않는다",
+    "abiCount": 1
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "assets/flutter_assets"
+    },
+    "layer": "library",
+    "origin": "asset",
+    "bytes": 12115299,
+    "status": "clear",
+    "basis": "Flutter 에셋 묶음(확정: 묶음 전체가 에셋)"
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libflutter.so"
+    },
+    "layer": "library",
+    "origin": "runtime",
+    "bytes": 11747864,
+    "status": "clear",
+    "basis": "런타임 엔진 라이브러리",
+    "abiCount": 1
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libmaplibre.so"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 10851472,
+    "status": "clear",
+    "basis": "LibChecker 규칙 lc.5a230f18-8da8-482b-b7fc-32697654f9ed (MapLibre Native)",
+    "ruleSource": "libchecker-rules",
+    "ruleId": "lc.5a230f18-8da8-482b-b7fc-32697654f9ed",
+    "abiCount": 1
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libcronet.143.0.7445.0.so"
+    },
+    "layer": "library",
+    "origin": "unidentified",
+    "bytes": 6500848,
+    "status": "clear",
+    "basis": "규칙에 없다(확정: 미식별이 정답)",
+    "note": "규칙을 쓰면 외부 라이브러리로 바뀐다",
+    "abiCount": 1
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "(패키지 마디가 둘 미만인 클래스)"
+    },
+    "layer": "library",
+    "origin": "unidentified",
+    "bytes": 4420559,
+    "status": "clear",
+    "basis": "이름이 줄여진(난독화된) 클래스(확정: 미식별이 정답)",
+    "note": "도구가 여기에 라이브러리 이름을 붙이면 오탐으로 센다"
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libnative_core_ffi.so"
+    },
+    "layer": "library",
+    "origin": "unidentified",
+    "bytes": 2345248,
+    "status": "clear",
+    "basis": "규칙에 없다(확정: 미식별이 정답)",
+    "note": "규칙을 쓰면 외부 라이브러리로 바뀐다",
+    "abiCount": 1
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "res"
+    },
+    "layer": "library",
+    "origin": "asset",
+    "bytes": 2192441,
+    "status": "clear",
+    "basis": "Android 리소스"
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libsqlite3.so"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 1749952,
+    "status": "clear",
+    "basis": "LibChecker 규칙 lc.1c0c7127-15f6-4abf-932f-0409cfa4b235 (SQLite)",
+    "ruleSource": "libchecker-rules",
+    "ruleId": "lc.1c0c7127-15f6-4abf-932f-0409cfa4b235",
+    "abiCount": 1
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "resources.arsc"
+    },
+    "layer": "library",
+    "origin": "asset",
+    "bytes": 1445828,
+    "status": "clear",
+    "basis": "Android 리소스 표"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "com/google/"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 357243,
+    "status": "judgment",
+    "basis": "널리 알려진 패키지 접두어"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "okhttp3/internal/"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 171790,
+    "status": "judgment",
+    "basis": "널리 알려진 패키지 접두어"
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libdartjni.so"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 124056,
+    "status": "clear",
+    "basis": "LibChecker 규칙 lc.978d1814-dda5-40cf-9339-0f9052ba6d5f (Dart JNI)",
+    "ruleSource": "libchecker-rules",
+    "ruleId": "lc.978d1814-dda5-40cf-9339-0f9052ba6d5f",
+    "abiCount": 1
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "org/maplibre/"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 118308,
+    "status": "judgment",
+    "basis": "널리 알려진 패키지 접두어"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "org/chromium/"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 83028,
+    "status": "judgment",
+    "basis": "널리 알려진 패키지 접두어"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "io/flutter/"
+    },
+    "layer": "library",
+    "origin": "runtime",
+    "bytes": 70358,
+    "status": "clear",
+    "basis": "런타임의 자바 쪽 코드(확정: 런타임)"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "androidx/datastore/"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 69383,
+    "status": "judgment",
+    "basis": "널리 알려진 패키지 접두어"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "androidx/glance/"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 66958,
+    "status": "judgment",
+    "basis": "널리 알려진 패키지 접두어"
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "okio/internal/"
+    },
+    "layer": "library",
+    "origin": "unidentified",
+    "bytes": 52564,
+    "status": "clear",
+    "basis": "규칙에 없다(확정: 미식별이 정답)"
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libsqlite3_connection_pool.so"
+    },
+    "layer": "library",
+    "origin": "unidentified",
+    "bytes": 46208,
+    "status": "clear",
+    "basis": "규칙에 없다(확정: 미식별이 정답)",
+    "note": "규칙을 쓰면 외부 라이브러리로 바뀐다",
+    "abiCount": 1
+   },
+   {
+    "match": {
+     "target": "dex-class",
+     "value": "app/alextran/"
+    },
+    "layer": "library",
+    "origin": "app-code",
+    "bytes": 14070,
+    "status": "clear",
+    "basis": "매니페스트의 패키지 이름 app.alextran.immich"
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libandroidx.graphics.path.so"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 10096,
+    "status": "clear",
+    "basis": "LibChecker 규칙 lc.71464fa3-a55f-4fce-a805-340482102a77 (Jetpack Graphics)",
+    "ruleSource": "libchecker-rules",
+    "ruleId": "lc.71464fa3-a55f-4fce-a805-340482102a77",
+    "abiCount": 1
+   },
+   {
+    "match": {
+     "target": "file-name",
+     "value": "libdatastore_shared_counter.so"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 7112,
+    "status": "clear",
+    "basis": "LibChecker 규칙 lc.17b3384c-87cb-4382-80bb-ce10cea77e50 (Jetpack DataStore)",
+    "ruleSource": "libchecker-rules",
+    "ruleId": "lc.17b3384c-87cb-4382-80bb-ce10cea77e50",
+    "abiCount": 1
+   }
+  ],
+  "listedBytes": 80120629,
+  "listedShare": 0.9635,
+  "facts": {
+   "abis": [
+    "arm64-v8a"
+   ],
+   "copies": [],
+   "nativeLibBytes": 58942800,
+   "dexBytes": 8095616,
+   "dexSharedBytes": 2338872,
+   "appPackagePrefix": "app/alextran",
+   "dexShortNamePackageBytes": 0
+  }
+ },
+ "surprisingFact": "사진 앱 안에 지도 엔진과 Chromium 네트워크 스택이 있다"
+}

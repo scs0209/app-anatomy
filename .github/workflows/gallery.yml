@@ -1,0 +1,88 @@
+# 갤러리 자동 갱신. 주마다 각 앱의 새 릴리스를 찾아 내려받고, 명령줄 도구로 해석해, 바뀐 것이 있으면 PR을 연다.
+# 직접 병합하지 않는다: 사람이 PR을 보고 병합한다.
+# 필요한 저장소 설정: Settings → Actions → General → "Allow GitHub Actions to create and approve pull requests".
+# 내려받은 앱 파일은 실행하지 않는다(해석기가 읽기만 한다).
+name: gallery
+
+on:
+  schedule:
+    - cron: "17 3 * * 1" # 월요일 03:17 UTC
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "버전이 같아도 다시 해석한다(도구나 규칙이 바뀐 뒤)"
+        type: boolean
+        default: false
+      only:
+        description: "이 앱만(예: rocket-chat). 비우면 전부"
+        type: string
+        default: ""
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: gallery
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+
+      # 해석기는 이 커밋의 소스로 새로 짓는다. 지은 파일은 커밋하지 않는다.
+      - name: Build the analyzer
+        run: |
+          rustup target add wasm32-unknown-unknown
+          sh core/build-wasm.sh
+
+      - name: Update the gallery
+        id: update
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          FORCE: ${{ inputs.force }}
+          ONLY: ${{ inputs.only }}
+        run: |
+          set +e
+          args=(--report "$RUNNER_TEMP/report.md")
+          [ "$FORCE" = "true" ] && args+=(--force)
+          [ -n "$ONLY" ] && args+=(--only "$ONLY")
+          node site/gallery-update.mjs "${args[@]}"
+          code=$?
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          cat "$RUNNER_TEMP/report.md" >> "$GITHUB_STEP_SUMMARY"
+          # 0: 문제 없음. 3: 일부 앱 실패(나머지는 갱신됨). 그 밖의 값은 스크립트 자체의 오류다.
+          [ "$code" = "0" ] || [ "$code" = "3" ]
+
+      - name: Rebuild the index
+        run: node site/gallery.mjs
+
+      - name: Open a pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -z "$(git status --porcelain -- site/gallery)" ]; then
+            echo "Nothing changed." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          branch="gallery/update-${GITHUB_RUN_ID}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add -- site/gallery
+          git commit -m "Update gallery results"
+          git push origin "$branch"
+          gh pr create --base "$GITHUB_REF_NAME" --head "$branch" --title "Update gallery results" --body-file "$RUNNER_TEMP/report.md"
+
+      # 일부 앱이 실패했으면 PR은 열어 두고 실행은 실패로 표시해 눈에 띄게 한다
+      - name: Report failures
+        if: steps.update.outputs.code == '3'
+        run: |
+          echo "Some apps could not be updated. See the report above."
+          exit 1

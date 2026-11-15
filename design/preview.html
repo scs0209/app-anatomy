@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>App Anatomy — die</title>
+<!-- 미리보기 전용: 글꼴과 three.js를 공개 CDN에서 불러온다. 실제 사이트는 같은 파일을 저장소에 실어 직접 제공한다. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root {
+  --board: #0A0D10; --board-2: #10151A; --rule: #212A32; --grid: #1B242B; --ice: #D5F3F6; --text: #E7EEF0; --soft: #93A3AB;
+  --runtime: #22D3EE; --library: #FFDD33; --app: #C83CFF; --asset: #F04A1F; --unid: #5F6970; --overhead: #2B333A; --substrate: #161C22;
+}
+* { box-sizing: border-box; }
+html { background: var(--board); scrollbar-color: var(--rule) var(--board); }
+body { margin: 0; background: var(--board); color: var(--text); font: 400 16px/1.55 "Archivo", "Pretendard Variable", sans-serif; -webkit-font-smoothing: antialiased; word-break: keep-all; overflow-wrap: anywhere; overflow-x: hidden; }
+::selection { background: var(--ice); color: var(--board); }
+a { color: inherit; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+button { font: inherit; }
+:focus-visible { outline: 2px solid var(--ice); outline-offset: 3px; }
+.num { font-family: "JetBrains Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+.display { font-family: "Archivo", "Pretendard Variable", sans-serif; font-stretch: 118%; font-weight: 800; letter-spacing: -0.015em; line-height: 1.14; text-wrap: balance; }
+/* 모서리 표시: 회로도의 부품 테두리처럼 네 귀퉁이만 긋는다 */
+.frame { --c: var(--ice); --s: 10px; background:
+  linear-gradient(var(--c), var(--c)) top left / var(--s) 1px no-repeat, linear-gradient(var(--c), var(--c)) top left / 1px var(--s) no-repeat,
+  linear-gradient(var(--c), var(--c)) top right / var(--s) 1px no-repeat, linear-gradient(var(--c), var(--c)) top right / 1px var(--s) no-repeat,
+  linear-gradient(var(--c), var(--c)) bottom left / var(--s) 1px no-repeat, linear-gradient(var(--c), var(--c)) bottom left / 1px var(--s) no-repeat,
+  linear-gradient(var(--c), var(--c)) bottom right / var(--s) 1px no-repeat, linear-gradient(var(--c), var(--c)) bottom right / 1px var(--s) no-repeat; }
+
+/* ---------- 첫 화면: 기판 전체가 무대 ---------- */
+.hero { position: relative; min-height: 100svh; overflow: hidden; }
+.stage { position: absolute; inset: 0; }
+.gl { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: pan-y; }
+.gl.drag { cursor: grabbing; }
+.tip { position: absolute; left: 0; top: 0; z-index: 6; padding: 7px 10px; background: var(--board-2); color: var(--text); border: 1px solid var(--ice); font: 500 12px/1.4 "JetBrains Mono", monospace; white-space: pre; pointer-events: none; max-width: 440px; overflow: hidden; text-overflow: ellipsis; }
+.tip[hidden] { display: none; }
+.nogl { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(34ch, 80%); margin: 0; color: var(--soft); font-size: 14px; text-align: center; }
+.hero .nogl { left: 66%; }
+.no3d #tabs1, .no3d #fold, .no3d .hint { display: none; }
+.hud { position: relative; z-index: 2; width: min(430px, 36vw); min-height: 100svh; padding: clamp(18px, 2.4vw, 32px) 0 26px clamp(20px, 3vw, 44px); display: flex; flex-direction: column; gap: 20px; pointer-events: none; }
+.hud > * { pointer-events: auto; }
+.hero::before { content: ""; position: absolute; inset: 0 auto 0 0; width: min(620px, 52vw); z-index: 1; background: linear-gradient(90deg, var(--board) 46%, transparent); pointer-events: none; }
+.runhead { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; font-size: 14px; color: var(--soft); }
+.runhead strong { color: var(--text); font-weight: 700; font-stretch: 118%; letter-spacing: 0.04em; text-transform: uppercase; }
+.runhead nav { display: flex; gap: 16px; }
+h1 { font-size: clamp(2.1rem, 3.5vw, 3.4rem); margin: 10px 0 0; }
+.lede { margin: 0; color: var(--soft); font-size: 16px; max-width: 36ch; }
+.lede b { color: var(--text); font-weight: 600; }
+.drop { padding: 18px; display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; background-color: color-mix(in srgb, var(--board-2) 82%, transparent); }
+.drop p { margin: 0; flex: 1 1 150px; font-weight: 600; }
+.drop small { flex-basis: 100%; color: var(--soft); font-size: 13px; }
+.btn { height: 40px; padding: 0 16px; border: 1px solid var(--ice); background: var(--ice); color: var(--board); font-weight: 700; cursor: pointer; }
+.btn:hover { background: #fff; border-color: #fff; }
+.btn.line { background: transparent; color: var(--text); }
+.btn.line:hover { background: color-mix(in srgb, var(--ice) 14%, transparent); border-color: var(--ice); }
+.btn[disabled] { opacity: .45; cursor: default; }
+.key { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: auto; }
+.key caption { text-align: left; padding-bottom: 8px; color: var(--soft); font-size: 13px; }
+.key td { padding: 5px 0; border-top: 1px solid var(--rule); vertical-align: baseline; }
+.key td:first-child { width: 28px; }
+.key td.b, .key td.p { text-align: right; white-space: nowrap; padding-left: 12px; color: var(--soft); }
+.key tr.hot td { background: var(--rule); color: #fff; }
+.key small { color: var(--soft); font-size: 12px; }
+.chip { display: inline-block; width: 16px; height: 10px; vertical-align: -1px; }
+.hatch { background-image: repeating-linear-gradient(45deg, transparent 0 3px, var(--board) 3px 4.5px); }
+.side { position: absolute; right: clamp(14px, 2vw, 28px); top: clamp(16px, 2.2vw, 28px); bottom: 22px; z-index: 3; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
+.side > * { pointer-events: auto; }
+.tabs { display: flex; flex-direction: column; gap: 6px; margin: auto 0; }
+.tabs button, .tog { display: grid; grid-template-columns: 30px auto; align-items: center; height: 40px; padding: 0 14px 0 0; border: 0; background-color: color-mix(in srgb, var(--board-2) 86%, transparent); color: var(--soft); cursor: pointer; text-align: left; font-size: 13px; --c: var(--rule); }
+.tabs button i { font: 700 12px/1 "JetBrains Mono", monospace; font-style: normal; text-align: center; }
+.tabs button[aria-pressed="true"] { color: var(--text); --c: var(--ice); }
+.tabs button:hover, .tog:hover { color: #fff; --c: var(--ice); }
+.tog { grid-template-columns: auto; padding: 0 14px; height: 34px; --c: var(--soft); color: var(--text); }
+.legend { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px 16px; font-size: 13px; color: var(--soft); max-width: 46vw; }
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+.hint { margin: 0; font-size: 13px; color: var(--soft); }
+
+/* ---------- 결과 화면 ---------- */
+.band { padding: clamp(44px, 6vw, 88px) clamp(20px, 3vw, 44px); border-top: 1px solid var(--rule); }
+.band h2 { font-size: clamp(1.6rem, 2.6vw, 2.4rem); margin: 0 0 10px; max-width: 22ch; }
+.band > p { margin: 0 0 28px; max-width: 62ch; color: var(--soft); }
+.result { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(320px, 1fr); min-height: 540px; background-color: var(--board-2); }
+.result .art { position: relative; min-height: 420px; border-right: 1px solid var(--rule); overflow: hidden; }
+.result .sum { position: absolute; left: 22px; top: 18px; right: 22px; z-index: 2; pointer-events: none; }
+.result .sum h3 { font-size: clamp(1.15rem, 1.7vw, 1.5rem); margin: 0 0 4px; }
+.result .sum p { margin: 0; font-size: 13px; color: var(--soft); }
+.result .note { position: absolute; left: 22px; bottom: 16px; right: 22px; margin: 0; font-size: 13px; color: var(--soft); z-index: 2; pointer-events: none; }
+.tools { display: flex; gap: 8px; padding: 14px 16px; border-bottom: 1px solid var(--rule); align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--soft); }
+.seg button { height: 32px; padding: 0 12px; border: 0; background: transparent; color: var(--soft); cursor: pointer; font-size: 13px; font-weight: 600; }
+.seg button[aria-pressed="true"] { background: var(--ice); color: var(--board); }
+.tools input { flex: 1; min-width: 0; height: 32px; border: 1px solid var(--rule); padding: 0 10px; background: var(--board); color: var(--text); font: inherit; font-size: 13px; caret-color: var(--ice); }
+.tools input::placeholder { color: var(--soft); opacity: 1; }
+.tools .btn { height: 32px; font-size: 13px; padding: 0 12px; }
+.row { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto 84px 52px; gap: 10px; align-items: center; min-height: 36px; padding: 0 16px; border-bottom: 1px solid var(--rule); cursor: pointer; }
+.row:hover { background: var(--rule); }
+.row[aria-selected="true"] { background: color-mix(in srgb, var(--ice) 16%, transparent); box-shadow: inset 0 0 0 1px var(--ice); }
+.row .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+.row .dim { text-align: right; color: var(--soft); font-size: 13px; }
+.row .ow { white-space: nowrap; }
+
+/* ---------- 활자와 색 ---------- */
+.colophon { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 64px); }
+.spec { margin: 0; display: grid; gap: 18px; align-content: start; }
+.spec div { border-top: 1px solid var(--rule); padding-top: 12px; }
+.spec dt { font-size: 13px; color: var(--soft); margin-bottom: 4px; }
+.spec dd { margin: 0; }
+.inks { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+.ink { background: var(--board); }
+.ink i { display: block; height: 56px; }
+.ink p { margin: 0; padding: 8px 10px; font-size: 13px; }
+.ink p span { display: block; color: var(--soft); font-size: 12px; }
+.states { margin-top: 28px; border-top: 1px solid var(--rule); }
+.state { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--rule); align-items: center; }
+.state > span { font-size: 13px; color: var(--soft); }
+.state p { margin: 0 0 8px; }
+.state p:last-child { margin: 0; }
+footer { padding: 28px clamp(20px, 3vw, 44px) 56px; font-size: 13px; color: var(--soft); border-top: 1px solid var(--rule); max-width: 84ch; }
+
+@media (max-width: 900px) {
+  .hero { display: flex; flex-direction: column; min-height: 0; }
+  .hero::before { display: none; }
+  .hud { display: contents; }
+  .hud > * { margin-inline: 20px; }
+  .runhead { order: 0; margin-top: 20px; } h1 { order: 1; margin-top: 18px; } .lede { order: 2; margin: 14px 20px 18px; }
+  .stage { order: 3; position: relative; height: 62svh; min-height: 400px; }
+  .side { order: 4; position: static; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; padding: 12px 20px; }
+  .tabs { flex-direction: row; margin: 0; } .tabs button { grid-template-columns: 34px; padding: 0; } .tabs button span { display: none; }
+  .legend { max-width: none; justify-content: flex-start; flex-basis: 100%; } .hint { display: none; }
+  .drop { order: 5; margin-top: 8px; } .key { order: 6; width: auto; margin: 22px 20px 28px; }
+  .result, .colophon { grid-template-columns: 1fr; }
+  .result .art { border-right: 0; border-bottom: 1px solid var(--rule); }
+  .state { grid-template-columns: 1fr; gap: 6px; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="stage" id="stack1"></div>
+  <div class="hud">
+    <div class="runhead"><strong>App Anatomy</strong><nav><a href="#result">결과 화면</a><a href="#colophon">활자와 색</a><a href="#">GitHub</a></nav></div>
+    <h1 class="display">Joplin을 칩처럼 열어 봤습니다</h1>
+    <p class="lede">메모 앱 하나가 <b class="num">613.7 MB</b>입니다. 그중 <b>47%는 Electron</b>, <b>22%는 AI 추론 엔진</b>이고 앱 코드 묶음은 12%입니다.</p>
+    <div class="drop frame">
+      <p>앱 파일을 여기에 놓으세요</p>
+      <button class="btn">파일 선택</button>
+      <small>.app · .zip · .apk · .ipa &nbsp;·&nbsp; 파일은 이 기기를 떠나지 않습니다.</small>
+    </div>
+    <table class="key" id="key"><caption>큰 부품 · Joplin 3.7.22, macOS, 압축을 푼 크기</caption><tbody></tbody></table>
+  </div>
+  <div class="side">
+    <button class="tog frame" id="fold">닫기</button>
+    <div class="tabs" id="tabs1" role="group" aria-label="층 고르기"></div>
+    <p class="hint">끌어서 돌려 보세요</p>
+    <div class="legend" aria-label="색">
+      <span><i class="chip" style="background:var(--runtime)"></i>런타임</span><span><i class="chip" style="background:var(--library)"></i>외부 라이브러리</span><span><i class="chip" style="background:var(--app)"></i>자체 코드</span><span><i class="chip" style="background:var(--asset)"></i>에셋</span><span><i class="chip hatch" style="background-color:var(--app)"></i>자체 코드 묶음</span><span><i class="chip hatch" style="background-color:var(--unid)"></i>미식별</span><span><i class="chip" style="background:var(--overhead)"></i>overhead</span>
+    </div>
+  </div>
+</div>
+
+<section class="band" id="result">
+  <h2 class="display">결과 화면은 칩과 목록입니다</h2>
+  <p>파일을 놓으면 같은 칩이 그 앱으로 그려집니다. 왼쪽은 분해도, 오른쪽은 같은 부품의 목록입니다. 목록에서 고른 줄은 칩에서 밝은 테두리로 표시됩니다.</p>
+  <div class="result frame">
+    <div class="art">
+      <div class="sum"><h3 class="display">Rocket.Chat은 React Native 앱입니다</h3><p><span class="num">226.7 MB</span> · 식별 <span class="num">91%</span> · 안쪽을 보지 못한 부분 <span class="num">6.5%</span></p></div>
+      <div id="stack2" style="position:absolute;inset:0"></div>
+      <p class="note">같은 네이티브 코드가 4벌 들어 있습니다. 기기 하나가 쓰는 것은 한 벌입니다 (<span class="num">arm64-v8a 47.1 MB</span>).</p>
+    </div>
+    <div>
+      <div class="tools">
+        <div class="seg" role="group" aria-label="보기"><button aria-pressed="true">분해도</button><button aria-pressed="false">평면</button></div>
+        <input placeholder="이름으로 찾기" aria-label="이름으로 찾기">
+        <button class="btn line">내보내기</button>
+      </div>
+      <div id="rows" role="listbox" aria-label="부품 목록"></div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="colophon">
+  <h2 class="display">활자와 색</h2>
+  <p>색은 네 가지뿐이고 각각 출처 하나만 뜻합니다. 격자, 회로선, 단추, 선택 표시는 얼음색 하나만 씁니다.</p>
+  <div class="colophon">
+    <dl class="spec">
+      <div><dt>제목 · Archivo 800, 폭 118% / 한글 Pretendard 800</dt><dd class="display" style="font-size:clamp(1.5rem,2.4vw,2.2rem)">Mattermost is 94% Electron<br>앱의 94%가 런타임입니다</dd></div>
+      <div><dt>본문과 화면 글자 · Archivo 400, 600 / 한글 Pretendard</dt><dd>Drop an app to see what it is made of. 파일은 이 브라우저 탭 안에서 분석되고 기기를 떠나지 않습니다.</dd></div>
+      <div><dt>바이트, 경로, 코드 · JetBrains Mono</dt><dd class="num" style="font-size:14px">613,705,107 B &nbsp; 286.3 MB &nbsp; 46.7%<br>Contents/Frameworks/Electron Framework.framework</dd></div>
+    </dl>
+    <div>
+      <div class="inks" id="inks"></div>
+      <div class="states">
+        <div class="state"><span>단추</span><p><button class="btn">파일 선택</button> <button class="btn line">취소</button> <button class="btn" disabled>해시 계산 중</button></p></div>
+        <div class="state"><span>해석 중</span><div><p style="font-weight:600">구성 분석 중입니다</p><p style="color:var(--soft);font-size:14px">React Native를 감지했습니다.</p></div></div>
+        <div class="state"><span>오류</span><div><p style="font-weight:600">지원하는 앱 파일이 아닙니다</p><p style="color:var(--soft);font-size:14px">앱이 다른 압축 파일 안에 있으면 한 번 풀어서 넣어 주세요. <span class="num">E_UNSUPPORTED_FORMAT</span></p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+<footer>미리보기입니다. 블록은 표본을 실제로 해석한 결과에서 자동으로 배치한 것입니다. 아주 작은 부품은 "그 밖의 N개"로 묶었습니다. 테마는 어두운 기판 하나입니다.</footer>
+
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from "three";
+import { Line2 } from "three/addons/lines/Line2.js";
+import { LineGeometry } from "three/addons/lines/LineGeometry.js";
+import { LineSegments2 } from "three/addons/lines/LineSegments2.js";
+import { LineSegmentsGeometry } from "three/addons/lines/LineSegmentsGeometry.js";
+import { LineMaterial } from "three/addons/lines/LineMaterial.js";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const ROMAN = ["I", "II", "III", "IV"];
+const KIND_LAYER = { app: 0, runtime: 1, library: 2, module: 3 };
+const INK = { "app-code": "app", "bundled-app-code": "app", library: "library", runtime: "runtime", asset: "asset", unidentified: "unid" };
+const ORIGIN_WORD = { "app-code": "자체 코드", "bundled-app-code": "자체 코드 묶음", library: "외부 라이브러리", runtime: "런타임", asset: "에셋", unidentified: "미식별" };
+const hatched = o => o === "bundled-app-code" || o === "unidentified";
+const fmt = b => b >= 1e6 ? (b / 1e6).toFixed(1) + " MB" : Math.max(1, Math.round(b / 1e3)) + " KB";
+const pct = (b, t) => { const p = b / t * 100; return (p >= 10 ? p.toFixed(0) : p.toFixed(1)) + "%"; };
+const short = n => n.includes("/") ? n.slice(n.lastIndexOf("/") + 1) : n;
+const reduced = matchMedia("(prefers-reduced-motion: reduce)"), narrow = matchMedia("(max-width: 900px)");
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+
+// 정사각형에 가깝게 나누는 트리맵. 면적 = 바이트.
+function squarify(items, x, y, w, h) {
+  const total = items.reduce((s, i) => s + i.b, 0); if (!total || w <= 0 || h <= 0) return;
+  const scale = w * h / total; let i = 0;
+  while (i < items.length) {
+    const side = Math.min(w, h); let n = 0, sum = 0, lo = Infinity, hi = 0, worst = Infinity;
+    while (i + n < items.length) {
+      const a = items[i + n].b * scale, s2 = sum + a, l2 = Math.min(lo, a), h2 = Math.max(hi, a);
+      const wr = Math.max(side * side * h2 / (s2 * s2), s2 * s2 / (side * side * l2));
+      if (n && wr > worst) break;
+      sum = s2; lo = l2; hi = h2; worst = wr; n++;
+    }
+    const thick = sum / side; let off = 0;
+    for (let j = 0; j < n; j++) { const it = items[i + j], len = it.b * scale / thick; it.rect = w >= h ? [x, y + off, thick, len] : [x + off, y, len, thick]; off += len; }
+    if (w >= h) { x += thick; w -= thick; } else { y += thick; h -= thick; }
+    i += n;
+  }
+}
+
+// 칩. 해석 결과의 노드 하나가 블록 하나다. 바닥 면적 = 바이트, 높이 = 층, 색 = 출처. 카메라는 정사영.
+// 닫으면 기판 위의 칩 패키지 하나. 열면 덮개가 떠오르고 층이 위로 떨어지며, 큰 부품에서 회로선이 라벨까지 뻗는다.
+function chip(host, data, opts = {}) {
+  const TH = [1.8, 3, 3.4, 3.4], GAP = opts.gap || 16, AWAY = 190, MW = 100, MH = 70, PLATE = 0.9;
+  const baseY = L => PLATE + TH.slice(0, L).reduce((a, b) => a + b, 0);
+  // 배치: 노드마다 사각형과 층을 정한다. 묶음(container)은 그리지 않고 자리만 물려준다.
+  const items = [];
+  (function place(node, rect, parentLayer, parent) {
+    const drawn = node.k !== "container";
+    const layer = drawn ? Math.max(KIND_LAYER[node.k] ?? 0, parentLayer + 1) : parentLayer;
+    let me = parent;
+    if (drawn) { me = { node, rect, layer, leaf: !node.c, parent }; items.push(me); }
+    if (!node.c) return;
+    const kids = node.c.slice().sort((a, b) => b.b - a.b);
+    squarify(kids, rect[0], rect[1], rect[2], rect[3]);
+    for (const k of kids) if (k.rect && k.rect[2] > 0.1 && k.rect[3] > 0.1) place(k, k.rect, drawn ? layer : parentLayer, me);
+  })(data.root, [0, 0, MW, MH], -1, null);
+  const maxLayer = Math.max(...items.map(i => i.layer));
+  // WebGL을 쓸 수 없으면 3D만 빼고 나머지(표, 목록)는 그대로 동작한다.
+  let renderer; try { renderer = new THREE.WebGLRenderer({ antialias: true }); } catch (e) { renderer = null; }
+  if (!renderer) {
+    const msg = document.createElement("p"); msg.className = "nogl"; msg.textContent = "이 브라우저에서는 3D 분해도를 그릴 수 없습니다. 부품 표와 목록은 그대로 볼 수 있습니다."; host.append(msg);
+    return { items, total: data.total, lifted: maxLayer + 1, open: true, layers: maxLayer + 1, nogl: true, place() {}, settle() {}, highlight() {} };
+  }
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+  renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  const canvas = renderer.domElement; canvas.className = "gl"; canvas.tabIndex = 0; canvas.setAttribute("role", "img"); canvas.setAttribute("aria-label", opts.alt || "");
+  const tip = document.createElement("div"); tip.className = "tip"; tip.hidden = true;
+  host.append(canvas, tip);
+  const scene = new THREE.Scene(), cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 3000), ray = new THREE.Raycaster();
+  const BOARD = css("--board"), ICE = css("--ice");
+  scene.background = new THREE.Color(opts.bg || BOARD);
+  const composer = new EffectComposer(renderer), bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.5, 0.7, 0.84);
+  composer.addPass(new RenderPass(scene, cam)); composer.addPass(bloom); composer.addPass(new OutputPass());
+  const az0 = opts.az ?? -0.66; let az = az0, el = opts.el ?? 0.6, W = 1, H = 1, cy = 0, hot = null, touched = false;
+
+
+  const unit = new THREE.BoxGeometry(1, 1, 1), unitEdges = new THREE.EdgesGeometry(unit);
+  const lineMats = [], callouts = []; let outline = null; const lid = { group: new THREE.Group(), y: 0, ty: 0, t0: 0 };
+  function hatchTex(bg, ink) {
+    const c = document.createElement("canvas"); c.width = c.height = 32; const g = c.getContext("2d");
+    g.fillStyle = bg; g.fillRect(0, 0, 32, 32); g.strokeStyle = ink; g.lineWidth = 4; g.lineCap = "square";
+    for (const d of [-32, 0, 32]) { g.beginPath(); g.moveTo(d, 32); g.lineTo(d + 32, 0); g.stroke(); }
+    const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+  }
+  const FONT = `Archivo, "Pretendard Variable", sans-serif`, MONO = `"JetBrains Mono", monospace`;
+  function fit(g, text, weight, start, min, max) {
+    let size = start; g.font = `${weight} ${size}px ${FONT}`;
+    while (g.measureText(text).width > max && size > min) { size -= 3; g.font = `${weight} ${size}px ${FONT}`; }
+    if (g.measureText(text).width > max) { while (text.length > 4 && g.measureText(text + "…").width > max) text = text.slice(0, -1); text += "…"; }
+    return text;
+  }
+  function topTex(l1, l2, color) { // 블록 윗면에 찍는 이름
+    const c = document.createElement("canvas"); c.width = 640; c.height = 160; const g = c.getContext("2d");
+    g.fillStyle = color; l1 = fit(g, l1, 700, 72, 34, 620); g.fillText(l1, 4, 84); g.font = `500 44px ${MONO}`; g.fillText(l2, 4, 142);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+  }
+  function calloutTex(name, sub, hex, hatch) { // 기판에 누운 라벨: 귀퉁이 표시 안에 이름, 아래에 수치
+    const c = document.createElement("canvas"); c.width = 768; c.height = 208; const g = c.getContext("2d");
+    g.fillStyle = "#FFFFFF"; g.textBaseline = "middle"; name = fit(g, name.toUpperCase(), 800, 60, 30, 690);
+    const tw = g.measureText(name).width, x0 = 6, x1 = Math.min(762, x0 + tw + 60), y0 = 6, y1 = 110;
+    g.fillText(name, x0 + 30, 60);
+    g.strokeStyle = "#FFFFFF"; g.lineWidth = 5; g.lineCap = "square"; const s = 22;
+    for (const [x, y, dx, dy] of [[x0, y0, 1, 1], [x1, y0, -1, 1], [x0, y1, 1, -1], [x1, y1, -1, -1]]) { g.beginPath(); g.moveTo(x + dx * s, y); g.lineTo(x, y); g.lineTo(x, y + dy * s); g.stroke(); }
+    g.save(); g.beginPath(); g.rect(x0 + 4, 150, 40, 26); g.clip(); g.fillStyle = hex; g.fillRect(x0 + 4, 150, 40, 26);
+    if (hatch) { g.strokeStyle = BOARD; g.lineWidth = 4; for (let d = -26; d < 44; d += 11) { g.beginPath(); g.moveTo(x0 + 4 + d, 176); g.lineTo(x0 + 4 + d + 26, 150); g.stroke(); } }
+    g.restore(); g.fillStyle = "#C9D6DA"; g.font = `500 38px ${MONO}`; g.fillText(sub, x0 + 60, 164);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+  }
+  const lum = hex => { const c = new THREE.Color(hex); return 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b; };
+
+  function build() {
+    const mats = {}, edgeMats = {};
+    const mat = (hex, glow) => mats[hex + glow] || (mats[hex + glow] = new THREE.MeshLambertMaterial({ color: hex, emissive: hex, emissiveIntensity: glow }));
+    const edgeMat = hex => edgeMats[hex] || (edgeMats[hex] = new THREE.LineBasicMaterial({ color: hex }));
+    const box = (parent, sx, sy, sz, px, py, pz, material, edgeHex) => {
+      const m = new THREE.Mesh(unit, material); m.scale.set(sx, sy, sz); m.position.set(px, py, pz); m.castShadow = m.receiveShadow = true; parent.add(m);
+      if (edgeHex) { const e = new THREE.LineSegments(unitEdges, edgeMat(edgeHex)); e.scale.copy(m.scale); e.position.copy(m.position); parent.add(e); }
+      return m;
+    };
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x1c2630, 1.15));
+    const sun = new THREE.DirectionalLight(0xffffff, 1.5); sun.position.set(-70, 150, 95); sun.castShadow = true; scene.add(sun);
+    sun.shadow.mapSize.set(2048, 2048); sun.shadow.radius = 4; sun.shadow.bias = -0.0006; sun.shadow.normalBias = 0.35;
+    Object.assign(sun.shadow.camera, { left: -130, right: 130, top: 130, bottom: -130, near: 1, far: 560 }); sun.shadow.camera.updateProjectionMatrix();
+    // 기판: 어두운 바닥, 옅은 격자, 교차점의 점
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(2400, 2400), new THREE.MeshLambertMaterial({ color: "#0D1115" })); floor.rotation.x = -Math.PI / 2; floor.position.y = -0.05; floor.receiveShadow = true; scene.add(floor);
+    const CELL = 24, N = 40, grid = new THREE.GridHelper(CELL * N, N, css("--grid"), css("--grid")); grid.position.y = -0.02; scene.add(grid);
+    const dots = []; for (let i = -N / 2; i <= N / 2; i++) for (let j = -N / 2; j <= N / 2; j++) dots.push(i * CELL, 0, j * CELL);
+    const dg = new THREE.BufferGeometry(); dg.setAttribute("position", new THREE.Float32BufferAttribute(dots, 3));
+    scene.add(new THREE.Points(dg, new THREE.PointsMaterial({ color: "#8FA6AE", size: 2.2 * Math.min(devicePixelRatio || 1, 2), sizeAttenuation: false })));
+    // 패키지: 받침판과 네 변의 다리
+    const pkg = new THREE.Group(); scene.add(pkg);
+    box(pkg, MW + 12, PLATE, MH + 12, 0, PLATE / 2, 0, mat("#11171C", 0), ICE);
+    const pin = mat("#96A2A8", 0);
+    for (let u = -MW / 2 + 2; u <= MW / 2 - 2; u += 4) { box(pkg, 1.5, 1.2, 3, u, 0.6, MH / 2 + 7, pin); box(pkg, 1.5, 1.2, 3, u, 0.6, -MH / 2 - 7, pin); }
+    for (let u = -MH / 2 + 2; u <= MH / 2 - 2; u += 4) { box(pkg, 3, 1.2, 1.5, MW / 2 + 7, 0.6, u, pin); box(pkg, 3, 1.2, 1.5, -MW / 2 - 7, 0.6, u, pin); }
+    const hatchBase = {};
+    for (const it of items) {
+      const [x, y, w, h] = it.rect, th = TH[Math.min(it.layer, TH.length - 1)], o = it.node.o;
+      const structural = !it.leaf && (it.node.k === "app" || it.node.k === "runtime" || !o);
+      const hex = structural ? css("--substrate") : o ? css("--" + INK[o]) : css("--overhead");
+      const gap = Math.min(0.3, w * 0.1, h * 0.1), bw = w - gap * 2, bh = h - gap * 2;
+      let m;
+      if (structural || !o) m = mat(hex, 0);
+      else if (hatched(o)) {
+        const t = (hatchBase[hex] || (hatchBase[hex] = hatchTex(hex, BOARD))).clone(); t.needsUpdate = true; t.repeat.set(bw / 3.2, bh / 3.2);
+        const side = mat(hex, 0.22); m = [side, side, new THREE.MeshLambertMaterial({ map: t, emissiveMap: t, emissive: "#ffffff", emissiveIntensity: 0.22 }), side, side, side];
+      } else m = mat(hex, 0.22);
+      const group = new THREE.Group();
+      const eh = structural ? "#5E7C86" : o ? new THREE.Color(hex).lerp(new THREE.Color("#ffffff"), 0.45).getStyle() : "#4A5560";
+      const mesh = box(group, bw, th, bh, 0, th / 2, 0, m, eh); mesh.userData.it = it;
+      group.position.set(x + w / 2 - MW / 2, baseY(it.layer), y + h / 2 - MH / 2); scene.add(group);
+      Object.assign(it, { group, mesh, th, hex, bw, bh, lift: 0, cx: x + w / 2 - MW / 2, cz: y + h / 2 - MH / 2 });
+      const long = Math.max(bw, bh), cross = Math.min(bw, bh), pw = Math.min(long * 0.88, cross * 0.8 * 4);
+      if (pw >= 7.5 && it.layer > 0) {
+        const dark = lum(hex) > 0.36, tex = topTex(short(it.node.n), `${fmt(it.node.b)}  ${pct(it.node.b, data.total)}`, dark ? "#0A0D10" : "#E7EEF0");
+        const p = new THREE.Mesh(new THREE.PlaneGeometry(pw, pw / 4), new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }));
+        p.rotation.x = -Math.PI / 2; if (bh > bw) p.rotation.z = -Math.PI / 2; p.renderOrder = 2;
+        const inset = Math.min(1.2, cross * 0.1);
+        if (bh > bw) p.position.set(-bw / 2 + inset + pw / 8, th + 0.04, -bh / 2 + inset + pw / 2); else p.position.set(-bw / 2 + inset + pw / 2, th + 0.04, -bh / 2 + inset + pw / 8);
+        group.add(p);
+      }
+    }
+    // 덮개: 닫힌 칩의 빛나는 윗판. 열면 위로 떠올라 사라진다.
+    const glow = new THREE.MeshLambertMaterial({ color: ICE, emissive: ICE, emissiveIntensity: 0.7 });
+    box(lid.group, MW + 1, 1.4, MH + 1, 0, 0.7, 0, mat("#1A2229", 0), ICE);
+    box(lid.group, MW * 0.66, 1.2, MH * 0.66, 0, 2.0, 0, mat("#222C34", 0), ICE);
+    box(lid.group, MW * 0.5, 1.0, MH * 0.5, 0, 3.1, 0, glow, "#FFFFFF");
+    scene.add(lid.group);
+    const om = new LineMaterial({ color: "#ffffff", linewidth: 2.5 }); lineMats.push(om);
+    outline = new LineSegments2(new LineSegmentsGeometry().fromEdgesGeometry(unitEdges), om); outline.visible = false; scene.add(outline);
+
+    // 회로선과 라벨: 라이브러리 층의 큰 부품에서 기판을 따라 뻗는다
+    const want = opts.callouts || 0; if (!want) return;
+    const SIDES = { front: { n: [0, 1], t: [1, 0], edge: MH / 2 + 8, sep: 43, lo: -74, hi: 141, cap: 6 } }; // 라벨은 칩 앞쪽에 두 줄로 엇갈려 놓는다
+    const picked = items.filter(i => i.layer === 2).sort((a, b) => b.node.b - a.node.b).slice(0, want), bySide = { front: [] };
+    for (const it of picked) {
+      const dist = s => SIDES[s].edge - (it.cx * SIDES[s].n[0] + it.cz * SIDES[s].n[1]);
+      const side = Object.keys(SIDES).sort((a, b) => dist(a) - dist(b)).find(s => bySide[s].length < SIDES[s].cap); if (side) bySide[side].push(it);
+    }
+    const traceMat = new LineMaterial({ color: ICE, linewidth: 1.6 }); lineMats.push(traceMat);
+    const riserMat = new THREE.LineBasicMaterial({ color: "#7FA4AD" });
+    for (const [name, list] of Object.entries(bySide)) {
+      const S = SIDES[name], [nx, nz] = S.n, [tx, tz] = S.t;
+      list.sort((a, b) => (a.cx * tx + a.cz * tz) - (b.cx * tx + b.cz * tz));
+      const u1 = list.map(it => clamp(it.cx * tx + it.cz * tz, S.lo, S.hi));
+      for (let i = 1; i < u1.length; i++) u1[i] = Math.max(u1[i], u1[i - 1] + S.sep);
+      const over = u1.length ? u1[u1.length - 1] - S.hi : 0; if (over > 0) for (let i = 0; i < u1.length; i++) u1[i] -= over;
+      list.forEach((it, i) => {
+        const u0 = it.cx * tx + it.cz * tz, half = (nx ? it.bw : it.bh) / 2 - 0.4, c0 = it.cx * nx + it.cz * nz;
+        const a = S.edge + 7 + i * 3, L = S.edge + 20 + (i % 2) * 28, du = u1[i] - u0, d = Math.min(Math.abs(du), Math.max(0, L - a - 3)), sg = Math.sign(du) || 1;
+        const P = (nd, td) => new THREE.Vector3(nx * nd + tx * td, 0.12, nz * nd + tz * td);
+        const pts = [P(c0 + half, u0), P(a, u0), P(a + d, u0 + sg * d)]; if (Math.abs(du) - d > 0.01) pts.push(P(a + d, u1[i])); pts.push(P(L, u1[i]));
+        const fine = []; for (let k = 0; k < pts.length - 1; k++) { const A = pts[k], B = pts[k + 1], steps = Math.max(1, Math.ceil(A.distanceTo(B) / 1.5)); for (let s = 0; s < steps; s++) { const v = A.clone().lerp(B, s / steps); fine.push(v.x, v.y, v.z); } }
+        const E = pts[pts.length - 1]; fine.push(E.x, E.y, E.z);
+        const line = new Line2(new LineGeometry().setPositions(fine), traceMat); line.geometry.instanceCount = 0; scene.add(line);
+        const riser = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1, 0)]), riserMat); riser.position.copy(pts[0]); riser.position.y = PLATE; scene.add(riser);
+        const pad = new THREE.Mesh(new THREE.CircleGeometry(1.1, 20), new THREE.MeshBasicMaterial({ color: ICE, transparent: true, opacity: 0 })); pad.rotation.x = -Math.PI / 2; pad.position.copy(E); pad.position.y = 0.14; scene.add(pad);
+        const lw = 72, lh = lw * 208 / 768, o = it.node.o;
+        const label = new THREE.Mesh(new THREE.PlaneGeometry(lw, lh), new THREE.MeshBasicMaterial({ map: calloutTex(short(it.node.n), `${fmt(it.node.b)} · ${pct(it.node.b, data.total)}`, it.hex, hatched(o)), transparent: true, opacity: 0, depthWrite: false }));
+        label.rotation.x = -Math.PI / 2; label.position.set(E.x + (nx ? nx * (lw / 2 + 2.5) : lw / 2 - 6), 0.16, E.z + (nz ? nz * (lh / 2 + 2) : 0)); scene.add(label);
+        callouts.push({ it, line, riser, pad, label, segs: fine.length / 3 - 1, p: 0, t0: 0, order: callouts.length });
+      });
+    }
+  }
+  function resize() {
+    W = host.clientWidth || 1; H = host.clientHeight || 1; renderer.setSize(W, H, false); composer.setSize(W, H);
+    const aspect = W / H, halfH = Math.max(opts.halfH || 64, (opts.halfW || 70) / aspect), halfW = halfH * aspect, sx = (opts.shiftX || 0) * halfW, sy = (opts.shiftY || 0) * halfH;
+    cam.left = -halfW + sx; cam.right = halfW + sx; cam.top = halfH + sy; cam.bottom = -halfH + sy; cam.updateProjectionMatrix();
+    for (const m of lineMats) m.resolution.set(W, H);
+    kick();
+  }
+  const rnd = i => { const s = Math.sin(i * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); };
+  const closedTop = () => { const top = Math.min(maxLayer, Math.max(1, api.lifted) - 1); return baseY(top) + TH[Math.min(top, 3)]; };
+  const api = {
+    items, total: data.total, lifted: maxLayer + 1, open: true, layers: maxLayer + 1,
+    place(instant) {
+      const now = performance.now(), still = instant || reduced.matches;
+      items.forEach((it, i) => {
+        it.ty = baseY(it.layer) + it.layer * (api.open ? GAP : 0) + (it.layer >= api.lifted ? AWAY : 0);
+        it.t0 = now + (api.open ? 260 : 0) + ((api.open ? it.layer : maxLayer - it.layer) * 110 + rnd(i) * 260);
+        if (still) { it.y = it.ty; it.t0 = 0; }
+      });
+      lid.ty = closedTop() + (api.open ? AWAY + 40 : 0); lid.t0 = still ? 0 : now + (api.open ? 0 : 520); if (still) lid.y = lid.ty;
+      for (const c of callouts) { c.t0 = still ? 0 : now + 1100 + c.order * 130; if (still) c.p = api.open && api.lifted > c.it.layer ? 1 : 0; }
+      kick();
+    },
+    highlight(it) { hot = it && it.group.visible ? it : null; kick(); },
+  };
+  function frame(dt, now) {
+    const k = 1 - Math.exp(-dt * 7); let moving = false;
+    for (const it of items) {
+      if (it.y === undefined) it.y = it.ty;
+      if (now < it.t0) moving = true;
+      else if (it.y !== it.ty) { it.y += (it.ty - it.y) * k; if (Math.abs(it.ty - it.y) < 0.02) it.y = it.ty; else moving = true; }
+      const lt = it === hot ? 1.6 : 0; if (it.lift !== lt) { it.lift += (lt - it.lift) * Math.min(1, k * 2.5); if (Math.abs(lt - it.lift) < 0.02) it.lift = lt; else moving = true; }
+      it.group.position.y = it.y + it.lift; it.group.visible = it.y < baseY(it.layer) + maxLayer * GAP + AWAY * 0.5;
+    }
+    if (now < lid.t0) moving = true; else if (lid.y !== lid.ty) { lid.y += (lid.ty - lid.y) * Math.min(1, k * 0.8); if (Math.abs(lid.ty - lid.y) < 0.02) lid.y = lid.ty; else moving = true; }
+    lid.group.position.y = lid.y; lid.group.visible = lid.y < closedTop() + AWAY * 0.6;
+    for (const c of callouts) {
+      const live = api.open && api.lifted > c.it.layer, want = live && now >= c.t0 ? 1 : 0;
+      if (c.p !== want) { c.p += (want - c.p) * Math.min(1, dt * (want ? 2.6 : 9)); if (Math.abs(want - c.p) < 0.004) c.p = want; else moving = true; } else if (live && now < c.t0) moving = true;
+      c.line.geometry.instanceCount = Math.floor(c.segs * clamp(c.p * 1.25, 0, 1)); c.line.visible = c.p > 0.01;
+      const tail = clamp((c.p - 0.72) / 0.28, 0, 1); c.label.material.opacity = tail; c.pad.material.opacity = tail; c.label.visible = c.pad.visible = tail > 0;
+      c.riser.visible = c.p > 0.02 && c.it.group.visible; c.riser.scale.y = Math.max(0.001, c.it.group.position.y - PLATE);
+    }
+    if (hot) { outline.visible = true; outline.position.copy(hot.group.position); outline.position.y += hot.th / 2; outline.scale.copy(hot.mesh.scale).multiplyScalar(1.012); } else outline.visible = false;
+    const top = Math.min(maxLayer, Math.max(1, api.lifted) - 1), tcy = (baseY(top) + TH[Math.min(top, 3)] + top * (api.open ? GAP : 0)) / 2;
+    if (cy !== tcy) { cy += (tcy - cy) * k; if (Math.abs(tcy - cy) < 0.02) cy = tcy; else moving = true; }
+    if (opts.drift && !touched && !reduced.matches && onScreen) { az = az0 + 0.12 * Math.sin(now / 1000 * 0.2); moving = true; }
+    const R = 700; cam.position.set(R * Math.cos(el) * Math.sin(az), cy + R * Math.sin(el), R * Math.cos(el) * Math.cos(az)); cam.lookAt(0, cy, 0); cam.updateMatrixWorld();
+    composer.render();
+    return moving;
+  }
+  let running = false, last = 0, dragging = false, onScreen = true;
+  function tick() { const now = performance.now(), moving = frame(Math.min(0.05, (now - last) / 1000), now); last = now; if (moving || dragging) next(); else running = false; }
+  function next() { let done = false; const go = () => { if (!done) { done = true; tick(); } }; requestAnimationFrame(go); setTimeout(go, 80); } // 화면이 가려져 있어도 멈추지 않게
+  function kick() { if (!running) { running = true; last = performance.now(); next(); } }
+  api.settle = () => { api.place(true); for (const c of callouts) c.p = api.open ? 1 : 0; frame(1, performance.now()); frame(1, performance.now()); };
+
+  let px = 0, py = 0;
+  function pick(e) {
+    const r = canvas.getBoundingClientRect(); ray.setFromCamera({ x: (e.clientX - r.left) / r.width * 2 - 1, y: -((e.clientY - r.top) / r.height) * 2 + 1 }, cam);
+    const hit = ray.intersectObjects(items.filter(i => i.group.visible).map(i => i.mesh), false)[0]; return hit ? hit.object.userData.it : null;
+  }
+  function setHot(it, e) {
+    if (lid.group.visible && !api.open) it = null;
+    if (it !== hot) { hot = it; kick(); if (opts.onHover) opts.onHover(it); }
+    tip.hidden = !it; if (it) { const r = host.getBoundingClientRect(), n = it.node; tip.textContent = `${n.n}\n${fmt(n.b)} · ${pct(n.b, data.total)}${n.o ? " · " + ORIGIN_WORD[n.o] : ""}`; const tx = Math.min(e.clientX - r.left + 14, r.width - tip.offsetWidth - 8); tip.style.transform = `translate(${tx}px, ${e.clientY - r.top + 16}px)`; }
+  }
+  canvas.addEventListener("pointerdown", e => { dragging = touched = true; px = e.clientX; py = e.clientY; canvas.setPointerCapture(e.pointerId); canvas.classList.add("drag"); tip.hidden = true; kick(); });
+  canvas.addEventListener("pointermove", e => {
+    if (dragging) { az -= (e.clientX - px) * 0.008; el = clamp(el + (e.clientY - py) * 0.006, 0.2, 1.3); px = e.clientX; py = e.clientY; }
+    else if (e.pointerType !== "touch") setHot(pick(e), e);
+  });
+  const end = () => { dragging = false; canvas.classList.remove("drag"); };
+  canvas.addEventListener("pointerup", end); canvas.addEventListener("pointercancel", end);
+  canvas.addEventListener("pointerleave", e => { if (!dragging) setHot(null, e); });
+  canvas.addEventListener("keydown", e => { const d = { ArrowLeft: [0.14, 0], ArrowRight: [-0.14, 0], ArrowUp: [0, 0.08], ArrowDown: [0, -0.08] }[e.key]; if (!d) return; e.preventDefault(); touched = true; az += d[0]; el = clamp(el + d[1], 0.2, 1.3); kick(); });
+  new ResizeObserver(resize).observe(host);
+  new IntersectionObserver(es => { onScreen = es[0].isIntersecting; if (onScreen) kick(); }).observe(host);
+  build(); api.place(true); resize();
+  return api;
+}
+
+const [jop, rc] = await Promise.all(["data-joplin.json", "data-rocketchat.json"].map(u => fetch(u).then(r => r.json())));
+await Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 2500))]);
+
+const keyBody = document.querySelector("#key tbody"), tabs = document.getElementById("tabs1");
+const originWord = node => node.o ? ORIGIN_WORD[node.o] : node.k === "shared" ? "shared" : "overhead";
+const chipFor = (node, el) => { el.title = originWord(node); el.setAttribute("role", "img"); el.setAttribute("aria-label", originWord(node)); el.style.backgroundColor = node.o ? `var(--${INK[node.o]})` : "var(--overhead)"; if (hatched(node.o)) el.classList.add("hatch"); };
+const v1 = chip(document.getElementById("stack1"), jop, narrow.matches
+  ? { drift: true, halfH: 84, halfW: 82, gap: 15, alt: "Joplin의 분해도." }
+  : { drift: true, callouts: 6, halfH: 124, halfW: 150, shiftX: -0.3, shiftY: -0.2, gap: 16, alt: "Joplin의 분해도. 기판 위의 칩이 앱, 런타임, 라이브러리, 모듈 층으로 열려 있고 큰 부품에서 회로선이 라벨까지 뻗어 있다.",
+      onHover: it => { for (const tr of keyBody.children) tr.classList.toggle("hot", !!it && (tr._it === it || tr._it === it.parent)); } });
+for (const it of v1.items.filter(i => i.layer === 2).sort((a, b) => b.node.b - a.node.b).slice(0, 8)) {
+  const tr = document.createElement("tr"); tr._it = it;
+  const a = document.createElement("td"), dot = document.createElement("i"); dot.className = "chip"; chipFor(it.node, dot); a.append(dot);
+  const b = document.createElement("td"); b.textContent = short(it.node.n); const w = document.createElement("small"); w.textContent = " · " + originWord(it.node); b.append(w);
+  const c = document.createElement("td"); c.className = "b num"; c.textContent = fmt(it.node.b);
+  const d = document.createElement("td"); d.className = "p num"; d.textContent = pct(it.node.b, v1.total);
+  tr.append(a, b, c, d); keyBody.append(tr);
+  tr.addEventListener("mouseenter", () => { tr.classList.add("hot"); v1.highlight(it); });
+  tr.addEventListener("mouseleave", () => { tr.classList.remove("hot"); v1.highlight(null); });
+}
+if (v1.nogl) document.documentElement.classList.add("no3d");
+const names = ["앱", "런타임", "라이브러리", "모듈"];
+function sync() { [...tabs.children].forEach((b, i) => b.setAttribute("aria-pressed", String(i < v1.lifted))); v1.place(); }
+names.slice(0, v1.layers).forEach((n, i) => {
+  const b = document.createElement("button"), r = document.createElement("i"), s = document.createElement("span");
+  b.className = "frame"; r.textContent = ROMAN[i]; s.textContent = n; b.append(r, s); b.title = n + " 층까지 보거나 이 층을 걷어 냅니다";
+  b.addEventListener("click", () => { v1.lifted = (v1.lifted === i + 1) ? Math.max(1, i) : i + 1; sync(); });
+  tabs.append(b);
+});
+// 처음에는 기판 위의 칩 하나. 잠시 뒤 덮개가 떠오르고 층이 열리며 회로선이 뻗는다.
+if (reduced.matches) { v1.settle(); sync(); } else { v1.open = false; v1.settle(); sync(); setTimeout(() => { v1.open = true; sync(); }, 1400); }
+document.getElementById("fold").addEventListener("click", e => { v1.open = !v1.open; e.target.textContent = v1.open ? "닫기" : "열기"; sync(); });
+
+const v2 = chip(document.getElementById("stack2"), rc, { halfH: 88, halfW: 100, shiftY: 0.12, gap: 13, bg: css("--board-2"), alt: "Rocket.Chat의 분해도." });
+const rows = document.getElementById("rows");
+for (const it of v2.items.filter(i => i.layer >= 1 && i.layer <= 2).sort((a, b) => b.node.b - a.node.b).slice(0, 12)) {
+  const r = document.createElement("div"); r.className = "row"; r.tabIndex = 0; r.setAttribute("role", "option"); r.setAttribute("aria-selected", "false");
+  const c = document.createElement("i"); c.className = "chip"; chipFor(it.node, c);
+  const nm = document.createElement("span"); nm.className = "nm num"; nm.textContent = short(it.node.n);
+  const ow = document.createElement("span"); ow.className = "dim ow"; ow.textContent = originWord(it.node);
+  const a = document.createElement("span"); a.className = "dim num"; a.textContent = fmt(it.node.b);
+  const b = document.createElement("span"); b.className = "dim num"; b.textContent = pct(it.node.b, v2.total);
+  r.append(c, nm, ow, a, b); rows.append(r);
+  const select = () => { rows.querySelectorAll(".row").forEach(x => x.setAttribute("aria-selected", "false")); r.setAttribute("aria-selected", "true"); v2.highlight(it); };
+  r.addEventListener("click", select); r.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(); } });
+}
+
+const inkHost = document.getElementById("inks");
+for (const [v, label, kind] of [["--runtime", "런타임", "시안"], ["--library", "외부 라이브러리", "노랑"], ["--app", "자체 코드", "보라"], ["--asset", "에셋", "주홍"], ["--unid", "미식별", "회색 빗금"], ["--overhead", "overhead · shared", "민색"], ["--substrate", "구조판", "앱, 런타임"], ["--ice", "얼음색", "선, 단추, 선택"], ["--board", "기판", "바탕"]]) {
+  const d = document.createElement("div"); d.className = "ink";
+  const i = document.createElement("i"); i.style.backgroundColor = `var(${v})`; if (v === "--unid") i.className = "hatch";
+  const p = document.createElement("p"); p.textContent = label; const s = document.createElement("span"); s.className = "num"; s.textContent = kind + " " + css(v).toUpperCase(); p.append(s);
+  d.append(i, p); inkHost.append(d);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+[package]
+name = "anatomy-core"
+version = "0.1.0"
+edition = "2021"
+publish = false
+license = "Apache-2.0"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+anatomy-schema = { path = "../schema" }
+miniz_oxide = "0.8"
+serde_json = "1"
+sha2 = { version = "0.10", default-features = false }
+plist = { version = "1", default-features = false }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+overflow-checks = true
+strip = true

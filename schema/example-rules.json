@@ -1,0 +1,106 @@
+{
+ "formatVersion": 1,
+ "source": {
+  "id": "builtin",
+  "name": "App Anatomy built-in rules",
+  "license": "Apache-2.0",
+  "modified": false
+ },
+ "rules": [
+  {
+   "id": "dex.google-ads",
+   "name": "Google Mobile Ads",
+   "kind": "library",
+   "category": "ads",
+   "vendor": "Google",
+   "homepage": "https://developers.google.com/admob",
+   "match": [
+    {
+     "target": "dex-class",
+     "type": "prefix",
+     "value": "com/google/android/gms/ads/",
+     "packaging": [
+      "apk"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "fw.sparkle",
+   "name": "Sparkle",
+   "kind": "library",
+   "category": "other",
+   "homepage": "https://sparkle-project.org",
+   "match": [
+    {
+     "target": "framework-name",
+     "type": "literal",
+     "value": "Sparkle",
+     "packaging": [
+      "macos-app"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "npm.sqlite3",
+   "name": "sqlite3",
+   "kind": "library",
+   "category": "other",
+   "match": [
+    {
+     "target": "npm-package",
+     "type": "literal",
+     "value": "sqlite3"
+    }
+   ]
+  },
+  {
+   "id": "rt.hermes",
+   "name": "Hermes",
+   "kind": "runtime",
+   "runtime": "react-native",
+   "category": "other",
+   "vendor": "Meta",
+   "homepage": "https://hermesengine.dev",
+   "match": [
+    {
+     "target": "file-name",
+     "type": "glob",
+     "value": "libhermes*.so",
+     "packaging": [
+      "apk"
+     ]
+    },
+    {
+     "target": "framework-name",
+     "type": "prefix",
+     "value": "hermes",
+     "packaging": [
+      "ipa"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "rt.tauri",
+   "name": "Tauri",
+   "kind": "runtime",
+   "runtime": "tauri",
+   "category": "other",
+   "homepage": "https://tauri.app",
+   "match": [
+    {
+     "target": "string-marker",
+     "type": "literal",
+     "value": "tauri::app",
+     "packaging": [
+      "macos-app"
+     ],
+     "file": "Contents/MacOS/*",
+     "maxFileBytes": 33554432
+    }
+   ]
+  }
+ ]
+}

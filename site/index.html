@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<meta name="color-scheme" content="dark">
+<title>App Anatomy</title>
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <div class="hero">
+    <div class="stage" id="stage"></div>
+    <div class="hud">
+      <header class="runhead"><strong>App Anatomy</strong><span id="nav-note"></span></header>
+      <section id="head" aria-live="polite"></section>
+      <div id="whatif" class="whatif frame" role="status" hidden></div>
+      <div class="drop frame" id="drop" role="group">
+        <p id="drop-text"></p>
+        <label class="btn" id="pick-label"><input type="file" id="pick" multiple class="vh"><span id="pick-text"></span></label>
+        <small id="drop-note"></small>
+        <small id="folder-hint"></small>
+        <button class="link" id="back-sample" hidden></button>
+      </div>
+      <table class="key" id="key" hidden><caption></caption><tbody></tbody></table>
+    </div>
+    <div class="side" id="side">
+      <button class="tog frame" id="fold"></button>
+      <div class="tabs" id="tabs" role="group"></div>
+      <p class="hint" id="hint"></p>
+      <div class="legend" id="legend"></div>
+    </div>
+  </div>
+  <section class="band" id="detail" hidden></section>
+  <section class="band" id="gallery" hidden></section>
+</main>
+<footer id="foot"></footer>
+<div id="overlay" hidden><div id="overlay-text" class="frame"></div></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>

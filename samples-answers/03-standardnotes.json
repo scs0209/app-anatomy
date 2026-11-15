@@ -1,0 +1,289 @@
+{
+ "answerFormat": 1,
+ "status": "draft",
+ "sample": {
+  "id": "03-standardnotes",
+  "app": "Standard Notes",
+  "version": "3.202.11",
+  "packaging": "macos-app",
+  "file": "standard-notes-3.202.11-mac-arm64.zip",
+  "fileBytes": 153851499,
+  "sha256": "8a8d85860487ddf9a9f89b6e06bf00e36d96dbe4ab99d0c41f52f7ff4d47bcaa",
+  "source": "https://github.com/standardnotes/app/releases",
+  "license": "AGPL-3.0"
+ },
+ "expected": {
+  "entryBytes": 474491641,
+  "runtimes": [
+   {
+    "runtime": "electron",
+    "dissected": true
+   }
+  ],
+  "components": [
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/Frameworks/Electron Framework.framework"
+    },
+    "layer": "library",
+    "origin": "runtime",
+    "bytes": 253146815,
+    "status": "clear",
+    "basis": "런타임 엔진 프레임워크"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/Resources/app.asar (node_modules 밖)"
+    },
+    "layer": "library",
+    "origin": "bundled-app-code",
+    "bytes": 88783795,
+    "status": "judgment",
+    "basis": "asar 안에서 node_modules 밖에 있는 파일의 합",
+    "note": "번들러가 합친 JS에는 외부 코드가 섞여 있을 수 있다. 소스맵과 에셋도 이 합에 들어 있다"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "typeorm"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 17814572,
+    "status": "clear",
+    "basis": "asar 안의 node_modules/typeorm"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "@opentelemetry/otlp-proto-exporter-base"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 6207465,
+    "status": "clear",
+    "basis": "asar 안의 node_modules/@opentelemetry/otlp-proto-exporter-base"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "date-fns"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 6051183,
+    "status": "clear",
+    "basis": "asar 안의 node_modules/date-fns"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "sqlite3"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 5125227,
+    "status": "clear",
+    "basis": "asar 안의 node_modules/sqlite3"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "sqlite3 (unpacked)"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 4147440,
+    "status": "clear",
+    "basis": "app.asar.unpacked/node_modules/sqlite3",
+    "note": "확정된 표(app-anatomy-dissectors.md)에 따라 asar 안의 같은 패키지 노드에 합친다"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "@opentelemetry/otlp-grpc-exporter-base"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 3671754,
+    "status": "clear",
+    "basis": "asar 안의 node_modules/@opentelemetry/otlp-grpc-exporter-base"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "@standardnotes/auth-server"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 3645406,
+    "status": "clear",
+    "basis": "asar 안의 node_modules/@standardnotes/auth-server"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "@opentelemetry/resource-detector-aws"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 3368939,
+    "status": "clear",
+    "basis": "asar 안의 node_modules/@opentelemetry/resource-detector-aws"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "microtime (unpacked)"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 3249384,
+    "status": "clear",
+    "basis": "app.asar.unpacked/node_modules/microtime",
+    "note": "확정된 표(app-anatomy-dissectors.md)에 따라 asar 안의 같은 패키지 노드에 합친다"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "protobufjs"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 2644009,
+    "status": "clear",
+    "basis": "asar 안의 node_modules/protobufjs"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "ReactiveObjC"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 394974,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "Squirrel"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 313149,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "cbor-extract (unpacked)"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 301902,
+    "status": "clear",
+    "basis": "app.asar.unpacked/node_modules/cbor-extract",
+    "note": "확정된 표(app-anatomy-dissectors.md)에 따라 asar 안의 같은 패키지 노드에 합친다"
+   },
+   {
+    "match": {
+     "target": "npm-package",
+     "value": "@cbor-extract/cbor-extract-darwin-arm64 (unpacked)"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 141696,
+    "status": "clear",
+    "basis": "app.asar.unpacked/node_modules/@cbor-extract/cbor-extract-darwin-arm64",
+    "note": "확정된 표(app-anatomy-dissectors.md)에 따라 asar 안의 같은 패키지 노드에 합친다"
+   },
+   {
+    "match": {
+     "target": "framework-name",
+     "value": "Mantle"
+    },
+    "layer": "library",
+    "origin": "library",
+    "bytes": 111670,
+    "status": "judgment",
+    "basis": "프레임워크 이름이 드러난 단위(일반 구조 규칙)"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/Frameworks/Standard Notes Helper (Renderer).app"
+    },
+    "layer": "container",
+    "origin": "runtime",
+    "bytes": 92212,
+    "status": "clear",
+    "basis": "Electron Helper 앱. 해부기가 소유를 선언한다",
+    "containerType": "nested-app"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/Frameworks/Standard Notes Helper (Plugin).app"
+    },
+    "layer": "container",
+    "origin": "runtime",
+    "bytes": 92204,
+    "status": "clear",
+    "basis": "Electron Helper 앱. 해부기가 소유를 선언한다",
+    "containerType": "nested-app"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/Frameworks/Standard Notes Helper (GPU).app"
+    },
+    "layer": "container",
+    "origin": "runtime",
+    "bytes": 92192,
+    "status": "clear",
+    "basis": "Electron Helper 앱. 해부기가 소유를 선언한다",
+    "containerType": "nested-app"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/Frameworks/Standard Notes Helper.app"
+    },
+    "layer": "container",
+    "origin": "runtime",
+    "bytes": 92154,
+    "status": "clear",
+    "basis": "Electron Helper 앱. 해부기가 소유를 선언한다",
+    "containerType": "nested-app"
+   },
+   {
+    "match": {
+     "target": "path",
+     "value": "Contents/MacOS/Standard Notes"
+    },
+    "layer": "library",
+    "origin": "runtime",
+    "bytes": 69376,
+    "status": "clear",
+    "basis": "Electron의 시동 코드(확정: 런타임)"
+   }
+  ],
+  "listedBytes": 399557518,
+  "listedShare": 0.8421,
+  "facts": {
+   "mainExecutableBytes": 69376,
+   "packagesInAsar": 474,
+   "nodeModulesBytes": 108153587,
+   "asarOverheadBytes": 15067107,
+   "asarUnpackedBytes": 7958214,
+   "smallResourceBytes": 103980,
+   "codeSignatureBytes": 16888
+  }
+ },
+ "surprisingFact": "데스크톱 앱 안에 서버 패키지가 들어 있고 소스맵이 81.8 MB다"
+}
