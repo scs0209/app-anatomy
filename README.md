@@ -6,6 +6,7 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/scs0209/app-anatomy/actions/workflows/rules.yml"><img alt="Rules check" src="https://github.com/scs0209/app-anatomy/actions/workflows/rules.yml/badge.svg"></a>
   <a href="https://www.npmjs.com/package/app-anatomy"><img alt="npm" src="https://img.shields.io/npm/v/app-anatomy.svg?style=flat-square"></a>
   <a href="package.json"><img alt="Node 18+" src="https://img.shields.io/badge/node-18%2B-blue?style=flat-square"></a>
   <a href="LICENSE"><img alt="Apache-2.0 License" src="https://img.shields.io/badge/license-Apache--2.0-2ecc71?style=flat-square"></a>
@@ -13,6 +14,7 @@
 </p>
 
 <p align="center">
+  <a href="https://scs0209.github.io/app-anatomy/"><b>Try it in the browser</b></a> ·
   <a href="#-quick-start"><b>Quick start</b></a> ·
   <a href="#-how-to-read-it"><b>How to read it</b></a> ·
   <a href="#-gallery">Gallery</a> ·
@@ -21,7 +23,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/demo.gif" width="750" alt="A chip package opens into layers showing what Joplin is made of; the Electron block is dragged out and the size drops from 613.7 MB to 327.4 MB">
+  <img src="https://raw.githubusercontent.com/scs0209/app-anatomy/main/docs/demo.gif" width="750" alt="A chip package opens into layers showing what Joplin is made of. The Electron block is dragged out: the size drops from 613.7 MB to 327.4 MB and the 276.3 MB that needs it goes dark. Then a 0.4 MB package is taken out and 217.9 MB goes down with it.">
 </p>
 
 ---
@@ -39,13 +41,13 @@ One command scans every app installed on your Mac. Apps are read, never run, and
 | 🖥 **Your whole Mac in one command** | `npx app-anatomy scan --open` reads every app in `/Applications` and tells you things like how many copies of Electron you have installed and how much disk they take together. |
 | 📦 **Or one app** | A `.app` folder, a ZIP with a `.app` inside, an Android APK or an iOS IPA. Electron, Flutter, React Native and native apps are recognized. |
 | 🧩 **A chip you can open** | Area is bytes, height is the layer (app, runtime, library, module), color is the origin. The camera is orthographic, so equal areas look equal. |
-| ✋ **Take a block out** | Drag a block off the chip and see the size without it. It recounts size only; it does not claim the app would still work. |
+| ✋ **Take a block out, see what falls** | Drag a block off the chip. The size is recounted, and every part that declares it needs that block goes dark with it. In Joplin, removing the 0.4 MB `onnxruntime-common` takes 218 MB down with it. |
 | 🔒 **Nothing is uploaded** | The analyzer is Rust compiled to WebAssembly and runs on your machine. The result page is served from `127.0.0.1` and makes no outside requests. |
 | 🧾 **Honest about what it does not know** | Unidentified parts stay gray and hatched. A parent's bytes always equal the sum of its children. |
 | 🤝 **Rules anyone can add** | A part is named by a few lines of JSON. 651 rules so far; you only need Node to write and test one. |
 
 <p align="center">
-  <img src="docs/images/chip.jpg" width="820" alt="Rocket.Chat's Android app opened into layers, with traced labels for its largest parts and a table of them on the left">
+  <img src="https://raw.githubusercontent.com/scs0209/app-anatomy/main/docs/images/chip.jpg" width="820" alt="Rocket.Chat's Android app opened into layers, with traced labels for its largest parts and a table of them on the left">
 </p>
 
 ## 🚀 Quick start
@@ -74,8 +76,9 @@ largest: libjingle_peerconnection_so.so 19.0% · libreactnative.so 11.6% · libb
 identified 94.0% · not looked inside 6.5% · overhead 2.8%
 ```
 
-**In the browser, by drag and drop:** the site in `site/` does the same without the terminal, and can reopen a saved
-result JSON. It is not hosted anywhere yet; run it locally:
+**In the browser, by drag and drop:** [scs0209.github.io/app-anatomy](https://scs0209.github.io/app-anatomy/) does the same without the terminal: drop an app file, or
+browse the [gallery](https://scs0209.github.io/app-anatomy/?app=rocket-chat). Files are analyzed in your browser tab and never leave it. It can also
+reopen a saved result JSON. To run the site yourself:
 
 ```bash
 git clone https://github.com/scs0209/app-anatomy && cd app-anatomy
@@ -99,24 +102,24 @@ One sign carries one meaning. Nothing decorative is drawn in an origin color.
 
 | | |
 |---|---|
-| ![Joplin with the Electron Framework block taken out; the panel reads 613.7 MB to 327.4 MB, minus 47 percent](docs/images/take-out.jpg) | ![The gallery: twelve open-source apps, each with platform, runtime, size, a bar of bytes by origin, license and source link](docs/images/gallery.jpg) |
+| ![Joplin with the Electron Framework block taken out; the panel reads 613.7 MB to 327.4 MB, minus 47 percent](https://raw.githubusercontent.com/scs0209/app-anatomy/main/docs/images/take-out.jpg) | ![The gallery: twelve open-source apps, each with platform, runtime, size, a bar of bytes by origin, license and source link](https://raw.githubusercontent.com/scs0209/app-anatomy/main/docs/images/gallery.jpg) |
 | **Take it out**: drag a block off the chip, or click a row in the table, and the size is recounted | **Gallery**: twelve open-source apps, each with its source repository and license |
-| ![A share card for Rocket.Chat: name, runtime, size, five largest parts and the chip](docs/images/share-card.png) | |
+| ![A share card for Rocket.Chat: name, runtime, size, five largest parts and the chip](https://raw.githubusercontent.com/scs0209/app-anatomy/main/docs/images/share-card.png) | |
 | **Share card**: a 1200×630 image of the view you composed, made in your browser | |
 
 On narrow screens the chip is replaced by a flat treemap with the same areas and colors.
 
 ## 🗂 Gallery
 
-Twelve open-source apps, analyzed with this tool. The results are in `site/gallery/`, with the repository, release and
+Twelve open-source apps, analyzed with this tool. Open any of them [on the site](https://scs0209.github.io/app-anatomy/). The results are in `site/gallery/`, with the repository, release and
 license of each in [`site/gallery/SOURCES.md`](site/gallery/SOURCES.md).
 
 | App | Platform | Size | Built with | Runtime share | Identified |
 |---|---|---|---|---|---|
 | Joplin | macOS | 613.7 MB | Electron | 46.8% | 99.3% |
-| Mattermost Desktop | macOS | 308.6 MB | Electron | 94.6% | 100.0% |
+| Mattermost Desktop | macOS | 280.2 MB | Electron | 94.0% | 99.9% |
 | Standard Notes | macOS | 474.5 MB | Electron | 53.4% | 100.0% |
-| AppFlowy | macOS | 297.8 MB | Flutter | 5.0% | 100.0% |
+| AppFlowy | macOS | 297.6 MB | Flutter | 5.0% | 100.0% |
 | Maccy | macOS | 10.6 MB | native | n/a | 99.7% |
 | Rocket.Chat | Android | 226.7 MB | React Native | 17.0% | 94.0% |
 | Joplin | Android | 201.7 MB | React Native | 16.9% | 91.3% |
@@ -124,7 +127,7 @@ license of each in [`site/gallery/SOURCES.md`](site/gallery/SOURCES.md).
 | LocalSend | Android | 50.3 MB | Flutter | 22.7% | 62.7% |
 | NewPipe | Android | 25.5 MB | native (Compose detected) | n/a | 92.9% |
 | UTM | iOS | 825.0 MB | native | n/a | 59.9% |
-| Mattermost | iOS | 133.8 MB | React Native | 3.6% | 99.9% |
+| Mattermost | iOS | 138.0 MB | React Native | 3.5% | 99.9% |
 
 "Runtime share" counts the bytes of the runtime itself. The terminal summary's `runtime:` line is larger for some apps because it also counts what the runtime carries (for React Native, the JavaScript bundle). "Identified" is the share of bytes whose origin the tool could say. A workflow checks weekly for new releases and
 opens a pull request with refreshed results. These are measurements of the released files, not the files. This
@@ -140,6 +143,7 @@ an app file or folder
       · detects the runtime: Electron, Flutter, React Native, or native
       · names parts with rules: file names, framework names, paths, class prefixes, npm package names
       · accounts for every byte: a parent equals the sum of its children
+      · records declared dependencies between parts: npm package dependencies, DT_NEEDED, LC_LOAD_DYLIB
   → one result JSON (schema in schema/)
   → the terminal summary, the 3D chip, the flat treemap, the list, the share card
 ```
@@ -180,6 +184,12 @@ node rules/tools/check.mjs                           # validate every rule file
 **[CONTRIBUTING.md](CONTRIBUTING.md)** walks through it from finding a part to opening the pull request. A wrong name
 is worse than no name, so the most useful report is a part that was labeled incorrectly.
 
+## 🤖 Use it from a coding agent
+
+`skills/app-anatomy/` is an agent skill. With it, an agent asked "why is this APK so big?" or "what is this app built
+with?" runs the tool, reads a short digest of the result instead of the whole file, and answers with the numbers.
+Copy the folder into your agent's skills directory (for Claude Code, `~/.claude/skills/`). It needs Node and `npx`.
+
 ## ❓ FAQ
 
 <details><summary><b>Is anything uploaded?</b></summary>
@@ -202,8 +212,11 @@ is a rule waiting to be written.
 
 <details><summary><b>What does "take it out" tell me?</b></summary>
 
-The size without that part, and nothing more. The tool does not know which parts depend on which, so it cannot tell
-you whether the app would still run.
+The size without that part, and which other parts declare that they need it. Those come from what the files say:
+`dependencies` in a package's `package.json`, the libraries a binary lists as needed (`DT_NEEDED` in ELF,
+`LC_LOAD_DYLIB` in Mach-O), and the fact that an Electron app's code needs the Electron framework. Nothing is run,
+so a dependency that is not declared (code loaded by name at run time, Java classes calling each other) does not
+show, and "goes down with it" means "says it needs it", not "was observed to fail".
 </details>
 
 <details><summary><b>Does it work on Windows or Linux?</b></summary>

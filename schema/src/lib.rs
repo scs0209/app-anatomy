@@ -229,6 +229,15 @@ pub struct Node {
     /// `kind`가 `parse-failed`일 때만 있다.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub failure: Option<ParseFailure>,
+    /// 의존 관계의 끝점이 되는 노드에만 있는 번호. 한 결과 안에서 겹치지 않는다.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<u32>,
+    /// 이 노드가 필요로 한다고 파일에 적혀 있는 노드들의 `id`. 오름차순, 겹치지 않는다.
+    /// 근거는 선언된 것뿐이다: npm 패키지의 `dependencies`, ELF의 `DT_NEEDED`, Mach-O의 `LC_LOAD_DYLIB`,
+    /// 그리고 런타임 구조(Electron의 앱 묶음은 프레임워크를 필요로 한다). 실행해서 확인한 것이 아니다.
+    /// 자식 노드는 부모의 `needs`를 물려받는다고 읽는다. 앱 밖의 것(시스템 라이브러리)은 담지 않는다.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub needs: Vec<u32>,
     /// 자식. 이름의 UTF-8 바이트 순서로 정렬한다. 잎이면 쓰지 않는다.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub children: Vec<Node>,

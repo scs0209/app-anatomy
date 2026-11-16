@@ -131,6 +131,80 @@ pub fn read_prefix(it: &Phys, want: usize) -> Vec<u8> {
     out
 }
 
+/// 항목 안의 여러 구간 (시작, 길이)을 읽는다. 폴더 입력과 압축하지 않은 ZIP 항목은 그 자리만 읽는다.
+/// 압축된 항목은 앞에서부터 한 번만 풀며 지나가고, 가장 뒤 구간까지만 푼다. 실패한 구간은 짧게 돌아온다.
+pub fn read_ranges(it: &Phys, ranges: &[(u64, usize)]) -> Vec<Vec<u8>> {
+    let mut out: Vec<Vec<u8>> = ranges.iter().map(|_| Vec::new()).collect();
+    if ranges.is_empty() {
+        return out;
+    }
+    if it.file != 0 {
+        for (i, (o, l)) in ranges.iter().enumerate() {
+            if *o < it.size {
+                out[i] = read_at(it.file - 1, *o, (*l).min((it.size - *o) as usize));
+            }
+        }
+        return out;
+    }
+    let lh = read_at(0, it.lho, 30);
+    let (Some(n), Some(m)) = (u16le(&lh, 26), u16le(&lh, 28)) else { return out };
+    let data = it.lho + 30 + n as u64 + m as u64;
+    if it.method == 0 {
+        for (i, (o, l)) in ranges.iter().enumerate() {
+            if *o < it.csize {
+                out[i] = read_at(0, data + *o, (*l).min((it.csize - *o) as usize));
+            }
+        }
+        return out;
+    }
+    let end = ranges.iter().map(|(o, l)| o.saturating_add(*l as u64)).max().unwrap_or(0).min(it.size);
+    if it.method != 8 || end > MAX_ENTRY_INFLATE {
+        return out;
+    }
+    let mut state = InflateState::new_boxed(DataFormat::Raw);
+    const CHUNK: usize = 256 * 1024;
+    let mut buf = vec![0u8; CHUNK];
+    let (mut produced, mut pos) = (0u64, 0u64);
+    'outer: while produced < end && pos < it.csize {
+        let chunk = read_at(0, data + pos, CHUNK.min((it.csize - pos) as usize));
+        if chunk.is_empty() {
+            break;
+        }
+        pos += chunk.len() as u64;
+        let mut input = &chunk[..];
+        loop {
+            let r = inflate(&mut state, input, &mut buf, MZFlush::None);
+            input = &input[r.bytes_consumed..];
+            let w = r.bytes_written;
+            if w > 0 {
+                let (a, b) = (produced, produced + w as u64);
+                for (i, (o, l)) in ranges.iter().enumerate() {
+                    let (s, e) = (a.max(*o), b.min(o.saturating_add(*l as u64)));
+                    if s < e {
+                        out[i].extend_from_slice(&buf[(s - a) as usize..(e - a) as usize]);
+                    }
+                }
+                produced = b;
+            }
+            if produced >= end {
+                break 'outer;
+            }
+            match r.status {
+                Ok(MZStatus::Ok) => {}
+                _ if input.is_empty() && w == 0 && r.bytes_consumed == 0 => break, // 입력이 더 필요하다
+                _ => break 'outer,
+            }
+            if r.bytes_consumed == 0 && w == 0 {
+                if input.is_empty() { break } else { break 'outer }
+            }
+            if input.is_empty() && w < buf.len() {
+                break;
+            }
+        }
+    }
+    out
+}
+
 /// 링크 항목의 대상. ZIP에서는 항목의 내용이 대상 경로다.
 pub fn link_target(it: &Phys) -> Option<String> {
     if it.file != 0 {

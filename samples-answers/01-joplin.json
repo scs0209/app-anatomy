@@ -78,7 +78,7 @@
     "bytes": 36292827,
     "status": "clear",
     "basis": "app.asar.unpacked/node_modules/onnxruntime-node",
-    "note": "확정된 표(app-anatomy-dissectors.md)에 따라 asar 안의 같은 패키지 노드에 합친다"
+    "note": "확정된 표에 따라 asar 안의 같은 패키지 노드에 합친다"
    },
    {
     "match": {
@@ -101,7 +101,7 @@
     "bytes": 5161096,
     "status": "clear",
     "basis": "app.asar.unpacked/node_modules/sqlite3",
-    "note": "확정된 표(app-anatomy-dissectors.md)에 따라 asar 안의 같은 패키지 노드에 합친다"
+    "note": "확정된 표에 따라 asar 안의 같은 패키지 노드에 합친다"
    },
    {
     "match": {
@@ -261,7 +261,7 @@
     "bytes": 180598,
     "status": "clear",
     "basis": "app.asar.unpacked/node_modules/sqlite-vec-darwin-arm64",
-    "note": "확정된 표(app-anatomy-dissectors.md)에 따라 asar 안의 같은 패키지 노드에 합친다"
+    "note": "확정된 표에 따라 asar 안의 같은 패키지 노드에 합친다"
    },
    {
     "match": {
@@ -284,7 +284,7 @@
     "bytes": 120776,
     "status": "clear",
     "basis": "app.asar.unpacked/node_modules/keytar",
-    "note": "확정된 표(app-anatomy-dissectors.md)에 따라 asar 안의 같은 패키지 노드에 합친다"
+    "note": "확정된 표에 따라 asar 안의 같은 패키지 노드에 합친다"
    },
    {
     "match": {

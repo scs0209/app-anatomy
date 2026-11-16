@@ -21,7 +21,7 @@ export function reduce(doc, moreLabel) {
       const by = new Map(); let sum = 0;
       for (const c of rest) { const key = c.kind + "|" + (c.origin || ""); by.set(key, (by.get(key) || 0) + c.bytes); sum += c.bytes; }
       const [kind, origin] = [...by].sort((a, b) => b[1] - a[1])[0][0].split("|");
-      const lump = { n: moreLabel(rest.length), b: sum, k: kind === "container" ? "overhead" : kind, lump: true }; if (origin) lump.o = origin;
+      const lump = { n: moreLabel(rest.length), b: sum, k: kind === "container" ? "overhead" : kind, lump: true, sp: n }; // sp: 묶인 것들의 부모(의존 관계를 물려받는 데 쓴다) if (origin) lump.o = origin;
       out.c.push(lump);
     }
     return out;

@@ -36,6 +36,8 @@ export function flat(host, data, opts = {}) {
   function fit(text, max) { if (g.measureText(text).width <= max) return text; while (text.length > 2 && g.measureText(text + "…").width > max) text = text.slice(0, -1); return text + "…"; }
   let hot = null, dead = false, removed = new Set();
   const gone = it => { for (let x = it; x; x = x.parent) if (removed.has(x)) return true; return false; };
+  let fallen = new Set();
+  const fell = it => { for (let x = it; x; x = x.parent) if (fallen.has(x)) return true; return false; };
   function draw() {
     if (dead) return;
     W = host.clientWidth || 1; H = host.clientHeight || 1;
@@ -48,14 +50,15 @@ export function flat(host, data, opts = {}) {
     for (const it of items) {
       const [x, y, w, h] = box(it); if (w < 0.6 || h < 0.6) continue;
       g.globalAlpha = gone(it) ? 0.12 : 1;
-      g.fillStyle = it.hatch ? hatchFill(it.hex) : it.hex; g.fillRect(x, y, w, h);
+      const dead = !gone(it) && fell(it); // 빠진 것에 기대던 부품은 색을 잃는다
+      g.fillStyle = dead ? "#161B20" : it.hatch ? hatchFill(it.hex) : it.hex; g.fillRect(x, y, w, h);
       if (w > 3 && h > 3) { g.strokeStyle = BOARD; g.lineWidth = 1; g.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1); }
     }
     // 이름: 라이브러리 층의 부품과, 그보다 위에서 끝나는 부품에. 들어갈 자리가 있을 때만.
     g.textBaseline = "top";
     g.globalAlpha = 1;
     for (const it of items) {
-      if (gone(it)) continue;
+      if (gone(it) || fell(it)) continue; // 빠졌거나 무너진 부품에는 이름을 쓰지 않는다
       const LL = opts.labelLayer ?? 2; if (it.layer < 1 || !(it.layer === LL || (it.leaf && it.layer < LL))) continue;
       const [x, y, w, h] = box(it); if (w < 58 || h < 24) continue;
       const dark = lum(it.hex) > 0.36, two = h >= 42;
@@ -92,6 +95,7 @@ export function flat(host, data, opts = {}) {
     place() { canvas.classList.toggle("away", !api.open); }, // 해석 중과 오류 화면에서는 흐리게 둔다
     settle() { api.place(); draw(); },
     highlight(it) { setHot(it || null, false); },
+    setFallen(list) { fallen = new Set(list); draw(); },
     setRemoved(list) { removed = new Set(list); draw(); }, // 빼 보기: 빠진 부품은 흐리게 남긴다
     // 공유 카드용 그림: w×h 자리에 여백과 설명 줄 없이 같은 트리맵을 그려 돌려준다. scale은 선명도(2면 두 배 화소).
     snapshot(w, h, scale = 2) {

@@ -120,7 +120,7 @@ export function chip(host, data, opts = {}) {
       const eh = structural ? "#5E7C86" : o ? new THREE.Color(hex).lerp(new THREE.Color("#ffffff"), 0.45).getStyle() : "#4A5560";
       const mesh = box(group, bw, th, bh, 0, th / 2, 0, m, eh); mesh.userData.it = it;
       group.position.set(x + w / 2 - MW / 2, baseY(it.layer), y + h / 2 - MH / 2); scene.add(group);
-      Object.assign(it, { group, mesh, th, hex, bw, bh, lift: 0, cx: x + w / 2 - MW / 2, cz: y + h / 2 - MH / 2 });
+      Object.assign(it, { group, mesh, th, hex, bw, bh, lift: 0, cx: x + w / 2 - MW / 2, cz: y + h / 2 - MH / 2, mat: m, edge: group.children[1], edgeMat: group.children[1].material, dead: false });
       const long = Math.max(bw, bh), cross = Math.min(bw, bh), pw = Math.min(long * 0.88, cross * 0.8 * 4);
       if (pw >= 7.5 && it.layer > 0) {
         const dark = lum(hex) > 0.36, tex = topTex(short(it.node.n), `${fmt(it.node.b)}  ${pct(it.node.b, data.total)}`, dark ? "#0A0D10" : "#E7EEF0");
@@ -128,7 +128,7 @@ export function chip(host, data, opts = {}) {
         p.rotation.x = -Math.PI / 2; if (bh > bw) p.rotation.z = -Math.PI / 2; p.renderOrder = 2;
         const inset = Math.min(1.2, cross * 0.1);
         if (bh > bw) p.position.set(-bw / 2 + inset + pw / 8, th + 0.04, -bh / 2 + inset + pw / 2); else p.position.set(-bw / 2 + inset + pw / 2, th + 0.04, -bh / 2 + inset + pw / 8);
-        group.add(p);
+        group.add(p); it.label = p;
       }
     }
     // 덮개: 닫힌 칩의 빛나는 윗판. 열면 위로 떠올라 사라진다.
@@ -184,12 +184,24 @@ export function chip(host, data, opts = {}) {
   const closedTop = () => { const top = Math.min(maxLayer, Math.max(1, api.lifted) - 1); return baseY(top) + TH[Math.min(top, 3)]; };
   let removed = new Set();
   const gone = it => { for (let x = it; x; x = x.parent) if (removed.has(x)) return true; return false; };
+  // 무너진 부품: 빠진 부품에 기대던 것들. 색을 잃고 제 층에서 내려앉는다.
+  let fallen = new Set();
+  const fell = it => { for (let x = it; x; x = x.parent) if (fallen.has(x)) return true; return false; };
+  const DEAD = new THREE.MeshLambertMaterial({ color: "#161B20" }), DEAD_EDGE = new THREE.LineBasicMaterial({ color: "#36414A" });
+  function setDead(it, on) {
+    if (it.dead === on || !it.mesh) return;
+    it.dead = on; it.mesh.material = on ? DEAD : it.mat; it.edge.material = on ? DEAD_EDGE : it.edgeMat;
+    if (it.label) it.label.material.opacity = on ? 0.28 : 1;
+    const r = on ? rnd(it.cx * 7.3 + it.cz * 3.1) - 0.5 : 0; it.group.rotation.set(r * 0.07, 0, on ? (rnd(it.cz * 5.7 + it.cx) - 0.5) * 0.07 : 0); // 살짝 기운다
+  }
+  // 시각은 이 함수로만 읽는다. api.clock을 주면 그 시계를 쓴다(영상을 한 장씩 찍을 때 실제 시간과 무관하게 진행시키려고).
+  const clock = () => (api && api.clock ? api.clock() : performance.now());
   const api = {
     items, total: data.total, lifted: maxLayer + 1, open: true, layers: maxLayer + 1, find,
     place(instant) {
-      const now = performance.now(), still = instant || reduced.matches;
+      const now = clock(), still = instant || reduced.matches;
       items.forEach((it, i) => {
-        it.ty = baseY(it.layer) + it.layer * (api.open ? GAP : 0) + (it.layer >= api.lifted || gone(it) ? AWAY : 0);
+        it.ty = baseY(it.layer) + it.layer * (api.open ? GAP : 0) + (it.layer >= api.lifted || gone(it) ? AWAY : 0) - (api.open && it.dead ? Math.min(GAP * 0.45, 6) : 0);
         it.t0 = now + (api.open ? 260 : 0) + ((api.open ? it.layer : maxLayer - it.layer) * 110 + rnd(i) * 260);
         if (still) { it.y = it.ty; it.t0 = 0; }
       });
@@ -199,6 +211,8 @@ export function chip(host, data, opts = {}) {
     },
     highlight(it) { hot = it && it.group.visible ? it : null; kick(); },
     // 빼 보기: 이 부품들(과 그 위에 얹힌 것)을 위로 떠올려 치운다. 크기만 다시 센다는 뜻이고, 그려진 자리는 그대로 비워 둔다.
+    // 빠진 것에 기대던 부품들. 어느 것이 무너지는지는 부르는 쪽이 의존 관계로 정해서 준다.
+    setFallen(list) { fallen = new Set(list); for (const it of items) setDead(it, fell(it) && !gone(it)); api.place(); },
     setRemoved(list) { removed = new Set(list); if (hot && gone(hot)) hot = null; for (const it of items) if (it.off && !removed.has(it)) it.back = true; api.place(); }, // 되돌린 부품은 끌려 나간 자리에서 제자리로 돌아온다
   };
   function frame(dt, now) {
@@ -216,7 +230,7 @@ export function chip(host, data, opts = {}) {
     if (now < lid.t0) moving = true; else if (lid.y !== lid.ty) { lid.y += (lid.ty - lid.y) * Math.min(1, k * 0.8); if (Math.abs(lid.ty - lid.y) < 0.02) lid.y = lid.ty; else moving = true; }
     lid.group.position.y = lid.y; lid.group.visible = lid.y < closedTop() + AWAY * 0.6;
     for (const c of callouts) {
-      const live = api.open && api.lifted > c.it.layer && !gone(c.it), want = live && now >= c.t0 ? 1 : 0;
+      const live = api.open && api.lifted > c.it.layer && !gone(c.it) && !c.it.dead, want = live && now >= c.t0 ? 1 : 0;
       if (c.p !== want) { c.p += (want - c.p) * Math.min(1, dt * (want ? 2.6 : 9)); if (Math.abs(want - c.p) < 0.004) c.p = want; else moving = true; } else if (live && now < c.t0) moving = true;
       c.line.geometry.instanceCount = Math.floor(c.segs * clamp(c.p * 1.25, 0, 1)); c.line.visible = c.p > 0.01;
       const tail = clamp((c.p - 0.72) / 0.28, 0, 1); c.label.material.opacity = tail; c.pad.material.opacity = tail; c.label.visible = c.pad.visible = tail > 0;
@@ -232,10 +246,11 @@ export function chip(host, data, opts = {}) {
     return moving;
   }
   let running = false, last = 0, dragging = false, onScreen = true, dead = false, snap = false, snapKeep = false;
-  function tick() { if (dead) return; const now = performance.now(), moving = frame(Math.min(0.05, (now - last) / 1000), now); last = now; if (moving || dragging || grab) next(); else running = false; }
+  function tick() { if (dead) return; if (api.manual) { running = false; return; } // manual: 스스로 돌지 않고 snapshot의 advance로만 진행한다
+    const now = clock(), moving = frame(Math.min(0.05, (now - last) / 1000), now); last = now; if (moving || dragging || grab) next(); else running = false; }
   function next() { let done = false; const go = () => { if (!done) { done = true; tick(); } }; requestAnimationFrame(go); setTimeout(go, 80); } // 화면이 가려져 있어도 멈추지 않게
-  function kick() { if (!running) { running = true; last = performance.now(); next(); } }
-  api.settle = () => { api.place(true); for (const c of callouts) c.p = api.open ? 1 : 0; frame(1, performance.now()); frame(1, performance.now()); };
+  function kick() { if (!running) { running = true; last = clock(); next(); } }
+  api.settle = () => { api.place(true); for (const c of callouts) c.p = api.open ? 1 : 0; frame(1, clock()); frame(1, clock()); };
 
   let px = 0, py = 0;
   function pick(e) {
@@ -245,7 +260,7 @@ export function chip(host, data, opts = {}) {
   function setHot(it, e) {
     if (lid.group.visible && !api.open) it = null;
     if (it !== hot) { hot = it; kick(); if (opts.onHover) opts.onHover(it); }
-    tip.hidden = !it; if (it) { const r = host.getBoundingClientRect(), n = it.node; tip.textContent = `${n.n}\n${fmt(n.b)} · ${pct(n.b, data.total)}${opts.originWord ? " · " + opts.originWord(n) : ""}`; const tx = Math.min(e.clientX - r.left + 14, r.width - tip.offsetWidth - 8); tip.style.transform = `translate(${tx}px, ${e.clientY - r.top + 16}px)`; }
+    tip.hidden = !it; if (it) { const r = host.getBoundingClientRect(), n = it.node; tip.textContent = `${n.n}\n${fmt(n.b)} · ${pct(n.b, data.total)}${opts.originWord ? " · " + opts.originWord(n) : ""}${opts.depText && opts.depText(n) ? "\n" + opts.depText(n) : ""}`; const tx = Math.min(e.clientX - r.left + 14, r.width - tip.offsetWidth - 8); tip.style.transform = `translate(${tx}px, ${e.clientY - r.top + 16}px)`; }
   }
   // 블록을 잡아 끌면 그 블록(과 그 위에 얹힌 것)이 따라온다. 충분히 멀리 끌어다 놓으면 빠지고(빼 보기), 가까이 놓으면 제자리로 돌아간다.
   // 빈 곳을 끌면 돌린다. 누르기만 해서는 아무 일도 일어나지 않는다. 터치에서는 블록을 잡지 않는다(돌리기와 화면 넘기기가 먼저다).
@@ -286,7 +301,7 @@ export function chip(host, data, opts = {}) {
     const aspect = w / h, halfH = Math.max(f.halfH || 104, (f.halfW || 150) / aspect), halfW = halfH * aspect, sx = (f.shiftX || 0) * halfW, sy = (f.shiftY || 0) * halfH;
     cam.left = -halfW + sx; cam.right = halfW + sx; cam.top = halfH + sy; cam.bottom = -halfH + sy; cam.updateProjectionMatrix();
     for (const m of lineMats) m.resolution.set(w, h);
-    frame(0, performance.now());
+    frame(f.advance || 0, clock()); // advance: 이만큼(초) 움직임을 진행시킨 뒤 그린다
     const out = document.createElement("canvas"); out.width = w; out.height = h; out.getContext("2d").drawImage(canvas, 0, 0); // 그린 직후 같은 작업 안에서 옮겨야 화소가 남아 있다
     snap = false; hot = keepHot; renderer.setPixelRatio(pr); composer.setPixelRatio(pr); resize();
     return out;

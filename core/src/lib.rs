@@ -1,5 +1,5 @@
 //! 앱 해부도 코어. 입력을 판별하고, 해부기를 돌리고, 결과 JSON(schemaVersion 1)을 만든다.
-//! 경계는 host-interface.md, 결과 형식은 schema/, 처리 규칙은 app-anatomy-dissectors.md를 따른다.
+//! 경계는 host-interface.md, 결과 형식은 schema/를 따른다.
 
 pub mod dissect;
 pub mod host;

@@ -1,7 +1,7 @@
-//! 포장 해부기와 런타임 해부기 (app-anatomy-dissectors.md). 물리 항목을 논리 트리에 놓는다.
+//! 포장 해부기와 런타임 해부기. 물리 항목을 논리 트리에 놓는다.
 use crate::host::{progress, STAGE_RUNTIME};
-use crate::parsers::{asar_files, asar_json_len, dex_classes, macho};
-use crate::phys::{link_target, read_prefix, Phys};
+use crate::parsers::{asar_data_base, asar_files, asar_json_len, dex_classes, elf_dynamic, elf_needed, elf_vaddr_to_off, macho, macho_dylibs, npm_deps};
+use crate::phys::{link_target, read_prefix, read_ranges, Phys};
 use crate::tree::{file_kind, is_asset_kind, Attr, RuleSet, Tree};
 use anatomy_schema::rules::{MatchTarget, RuleKind};
 use anatomy_schema::*;
@@ -122,7 +122,7 @@ impl<'a> Ctx<'a> {
     }
 
     /// 실행 파일. 유니버설이면 아키텍처 조각으로 나눈다. iOS면 암호화 여부를 읽는다.
-    fn executable(&mut self, parent: usize, name: &str, p: &Phys, attr: Attr) {
+    fn executable(&mut self, parent: usize, name: &str, p: &Phys, attr: Attr) -> usize {
         let m = macho(&read_prefix(p, 64 * 1024), p.size);
         match m {
             Some(m) if m.slices.len() > 1 => {
@@ -135,11 +135,13 @@ impl<'a> Ctx<'a> {
                     self.t.leaf(c, NodeKind::Module, "(code)", *size, 0, || Attr { origin, confidence: conf, file_kind: Some(FileKind::Executable), no_module_layer: true, ..Default::default() });
                 }
                 self.overhead(lib, m.overhead);
+                lib
             }
             other => {
                 let id = self.t.leaf(parent, NodeKind::Library, name, p.size, p.csize, || attr.kind(FileKind::Executable).lump());
                 self.t.n[id].paths = vec![p.path.clone()];
                 self.t.n[id].encrypted = other.map_or(false, |m| m.encrypted);
+                id
             }
         }
     }
@@ -194,6 +196,65 @@ impl<'a> Ctx<'a> {
             self.asar_file(c, &f.path, f.size, 0);
         }
         self.overhead(c, p.size - packed);
+        self.asar_deps(c, p, &files);
+    }
+
+    /// asar 안의 package.json에 적힌 `dependencies`로 패키지 사이의 의존을 적는다.
+    /// 맨 위의 package.json은 앱 자체 코드("(app)")의 것이고, node_modules/<패키지>/package.json은 그 패키지의 것이다.
+    /// 같은 asar 안에 노드가 있는 패키지만 잇는다.
+    fn asar_deps(&mut self, container: usize, p: &Phys, files: &[crate::parsers::AsarFile]) {
+        const MAX_PKG_JSON: u64 = 512 * 1024;
+        let Some(base) = asar_data_base(&read_prefix(p, 16)) else { return };
+        let mut who: Vec<String> = Vec::new();
+        let mut ranges: Vec<(u64, usize)> = Vec::new();
+        for f in files.iter().filter(|f| !f.unpacked && f.size > 0 && f.size <= MAX_PKG_JSON) {
+            let Some(off) = f.offset else { continue };
+            let owner = if f.path == "package.json" {
+                Some("(app)".to_string())
+            } else {
+                f.path.strip_prefix("node_modules/").and_then(|r| r.strip_suffix("/package.json")).filter(|pkg| {
+                    let segs = pkg.split('/').count();
+                    if pkg.starts_with('@') { segs == 2 } else { segs == 1 }
+                }).map(|s| s.to_string())
+            };
+            if let Some(o) = owner {
+                if who.len() < 5000 {
+                    who.push(o);
+                    ranges.push((base + off, f.size as usize));
+                }
+            }
+        }
+        let bodies = read_ranges(p, &ranges);
+        for (owner, body) in who.iter().zip(bodies) {
+            let Some(&from) = self.t.n[container].kids.get(owner.as_str()) else { continue };
+            for dep in npm_deps(&body) {
+                if let Some(&to) = self.t.n[container].kids.get(dep.as_str()) {
+                    self.t.need(from, to);
+                }
+            }
+        }
+    }
+
+    /// ELF 파일이 필요하다고 적은 라이브러리 이름들 (DT_NEEDED).
+    fn elf_needs(p: &Phys) -> Vec<String> {
+        const MAX_SO: u64 = 200 * 1024 * 1024;
+        if p.size > MAX_SO {
+            return Vec::new();
+        }
+        let head = read_prefix(p, 64 * 1024);
+        let Some(d) = elf_dynamic(&head) else { return Vec::new() };
+        let dynb = read_ranges(p, &[(d.dyn_off, d.dyn_size.min(64 * 1024) as usize)]).pop().unwrap_or_default();
+        let (needed, strtab, strsz) = elf_needed(&dynb, d.is64);
+        let (Some(st), Some(sz)) = (strtab.and_then(|v| elf_vaddr_to_off(&d, v)), strsz) else { return Vec::new() };
+        if needed.is_empty() || sz > 16 * 1024 * 1024 {
+            return Vec::new();
+        }
+        let tab = read_ranges(p, &[(st, sz as usize)]).pop().unwrap_or_default();
+        needed.iter().filter_map(|&o| {
+            let s = tab.get(o as usize..)?;
+            let end = s.iter().position(|&b| b == 0)?;
+            std::str::from_utf8(&s[..end]).ok().filter(|n| !n.is_empty()).map(|n| n.to_string())
+        }).collect()
     }
 
     fn link(&mut self, p: &Phys, rel: &str) {
@@ -250,6 +311,8 @@ pub fn dissect_apple(c: &mut Ctx, files: &[Phys], rels: &[String], ios: bool, in
     let flutter = c.rt(Runtime::Flutter);
     let rn = c.rt(Runtime::ReactNative);
     let exe_name = info.executable.clone().unwrap_or_default();
+    // 의존을 읽을 실행 파일들: (노드, 파일)
+    let mut bins: Vec<(usize, &Phys)> = Vec::new();
 
     for (p, rel) in files.iter().zip(rels) {
         if p.link {
@@ -269,10 +332,13 @@ pub fn dissect_apple(c: &mut Ctx, files: &[Phys], rels: &[String], ios: bool, in
             if rest.is_empty() {
                 // 프레임워크 폴더 바로 아래의 파일 (dylib 등)
                 let hit = c.rules.lookup(MatchTarget::FileName, top, c.pk);
-                c.t.leaf(APP, NodeKind::Library, top, p.size, p.csize, || match &hit {
+                let id = c.t.leaf(APP, NodeKind::Library, top, p.size, p.csize, || match &hit {
                     Some(h) => Attr::hit(h, Origin::Library).kind(FileKind::Executable),
                     None => Ctx::plain(rel, None),
                 });
+                if top.ends_with(".dylib") {
+                    bins.push((id, p));
+                }
             } else if engine.as_deref() == Some(top) {
                 let name = top.trim_end_matches(".framework").to_string();
                 c.t.leaf(electron.unwrap_or(APP), NodeKind::Library, &name, p.size, p.csize, || Attr::origin(Origin::Runtime, Confidence::High, EvidenceKind::Path, &format!("{fw_prefix}{top}")).kind(FileKind::Executable).lump());
@@ -287,7 +353,8 @@ pub fn dissect_apple(c: &mut Ctx, files: &[Phys], rels: &[String], ios: bool, in
                     let m = &rest[i + 15..];
                     c.t.leaf(lib, NodeKind::Module, m, p.size, p.csize, || Attr { origin: Some(Origin::Asset), confidence: Some(Confidence::Medium), file_kind: Some(file_kind(m)), ..Default::default() });
                 } else if rest == "App" || rest.ends_with("/App") {
-                    c.t.leaf(f, NodeKind::Library, "App (snapshot)", p.size, p.csize, || Attr::origin(Origin::BundledAppCode, Confidence::High, EvidenceKind::Path, "App.framework/App").kind(FileKind::Executable).lump());
+                    let id = c.t.leaf(f, NodeKind::Library, "App (snapshot)", p.size, p.csize, || Attr::origin(Origin::BundledAppCode, Confidence::High, EvidenceKind::Path, "App.framework/App").kind(FileKind::Executable).lump());
+                    bins.push((id, p));
                 } else if rest.contains("_CodeSignature/") {
                     c.overhead(f, p.size);
                 } else {
@@ -324,6 +391,9 @@ pub fn dissect_apple(c: &mut Ctx, files: &[Phys], rels: &[String], ios: bool, in
                 let m = rest.strip_prefix("Versions/A/").unwrap_or(rest);
                 let k = if m == fwname { FileKind::Executable } else { file_kind(m) };
                 c.t.leaf(lib, NodeKind::Module, m, p.size, p.csize, || Attr { origin: Some(origin), confidence: Some(conf), file_kind: Some(k), ..Default::default() });
+                if m == fwname {
+                    bins.push((lib, p));
+                }
             } else {
                 c.generic(APP, fr, rel, p, None);
             }
@@ -348,11 +418,12 @@ pub fn dissect_apple(c: &mut Ctx, files: &[Phys], rels: &[String], ios: bool, in
         }
         let main = if ios { r == exe_name } else { r.strip_prefix("MacOS/") == Some(exe_name.as_str()) };
         if main && !exe_name.is_empty() {
-            if let Some(e) = electron {
-                c.executable(e, &format!("{exe_name} (launcher)"), p, Attr::origin(Origin::Runtime, Confidence::High, EvidenceKind::Location, "Electron launcher executable"));
+            let id = if let Some(e) = electron {
+                c.executable(e, &format!("{exe_name} (launcher)"), p, Attr::origin(Origin::Runtime, Confidence::High, EvidenceKind::Location, "Electron launcher executable"))
             } else {
-                c.executable(APP, &exe_name, p, Attr::origin(Origin::BundledAppCode, Confidence::Medium, EvidenceKind::Location, "main executable"));
-            }
+                c.executable(APP, &exe_name, p, Attr::origin(Origin::BundledAppCode, Confidence::Medium, EvidenceKind::Location, "main executable"))
+            };
+            bins.push((id, p));
             continue;
         }
         if let Some(e) = electron {
@@ -382,6 +453,43 @@ pub fn dissect_apple(c: &mut Ctx, files: &[Phys], rels: &[String], ios: bool, in
         c.runtimes.push(RtInfo { runtime: Runtime::Native, node: None, dissected: true, confidence: Confidence::Low, evidence: ev(EvidenceKind::Default, "no other runtime detected"), version: None });
         progress(STAGE_RUNTIME, "native");
     }
+
+    // ---- 의존 관계 (선언된 것만)
+    // 1. 실행 파일이 불러온다고 적은 앱 안의 프레임워크와 dylib (LC_LOAD_DYLIB)
+    let engine_stem = engine.as_deref().map(|e| e.trim_end_matches(".framework").to_string());
+    for (from, p) in bins {
+        for path in macho_dylibs(&read_prefix(p, 256 * 1024)) {
+            // 앱 안을 가리키는 경로만 본다. 시스템 라이브러리는 담지 않는다.
+            if !(path.starts_with("@rpath/") || path.starts_with("@executable_path/") || path.starts_with("@loader_path/")) {
+                continue;
+            }
+            let target = match path.find(".framework/") {
+                Some(i) => {
+                    let stem = path[..i].rsplit('/').next().unwrap_or("");
+                    if engine_stem.as_deref() == Some(stem) {
+                        electron.and_then(|e| c.t.n[e].kids.get(stem).copied())
+                    } else {
+                        c.t.n[APP].kids.get(stem).copied()
+                            .or_else(|| flutter.and_then(|f| c.t.n[f].kids.get(stem).copied()))
+                            .or_else(|| rn.and_then(|r| c.t.n[r].kids.get(stem).copied()))
+                    }
+                }
+                None => c.t.n[APP].kids.get(path.rsplit('/').next().unwrap_or("")).copied(),
+            };
+            if let Some(to) = target {
+                c.t.need(from, to);
+            }
+        }
+    }
+    // 2. Electron의 구조: 런타임이 소유한 나머지(앱 묶음, 헬퍼 앱, 실행기)는 프레임워크 본체가 있어야 한다
+    if let (Some(e), Some(stem)) = (electron, engine_stem.as_deref()) {
+        if let Some(&fw) = c.t.n[e].kids.get(stem) {
+            let others: Vec<usize> = c.t.n[e].kids.values().copied().filter(|&k| k != fw && !matches!(c.t.n[k].kind, NodeKind::Overhead | NodeKind::Shared | NodeKind::Link)).collect();
+            for k in others {
+                c.t.need(k, fw);
+            }
+        }
+    }
 }
 
 // ------------------------------------------------------------------ Android APK
@@ -400,6 +508,8 @@ pub fn dissect_apk(c: &mut Ctx, files: &[Phys], info: &AppInfo) {
     let rn = c.rt(Runtime::ReactNative);
     let app_id_path = info.app_id.as_ref().map(|id| id.replace('.', "/"));
     let mut dexes: Vec<&Phys> = Vec::new();
+    // 네이티브 라이브러리: (ABI, 파일 이름, 노드, 파일)
+    let mut sos: Vec<(&str, &str, usize, &Phys)> = Vec::new();
 
     for p in files {
         let path = p.path.as_str();
@@ -414,7 +524,7 @@ pub fn dissect_apk(c: &mut Ctx, files: &[Phys], info: &AppInfo) {
             let parent = fl.or(rnn).unwrap_or(APP);
             let cn = c.t.node(parent, NodeKind::Container, abi, || Attr::container(ContainerType::Abi));
             let hit = if parent == APP { c.rules.lookup(MatchTarget::FileName, name, c.pk) } else { None };
-            c.t.leaf(cn, NodeKind::Library, name, p.size, p.csize, || {
+            let id = c.t.leaf(cn, NodeKind::Library, name, p.size, p.csize, || {
                 let a = if name == "libapp.so" && fl.is_some() {
                     Attr::origin(Origin::BundledAppCode, Confidence::High, EvidenceKind::Path, "libapp.so (Flutter app snapshot)").lump()
                 } else if parent != APP {
@@ -426,6 +536,7 @@ pub fn dissect_apk(c: &mut Ctx, files: &[Phys], info: &AppInfo) {
                 };
                 a.kind(FileKind::Executable)
             });
+            sos.push((abi, name, id, p));
         } else if let (Some(f), Some(rest)) = (flutter, path.strip_prefix("assets/flutter_assets/")) {
             let lib = c.t.node(f, NodeKind::Library, "flutter_assets", || Attr::origin(Origin::Asset, Confidence::Medium, EvidenceKind::Path, "assets/flutter_assets"));
             c.t.leaf(lib, NodeKind::Module, rest, p.size, p.csize, || Attr { origin: Some(Origin::Asset), confidence: Some(Confidence::Medium), file_kind: Some(file_kind(rest)), ..Default::default() });
@@ -456,6 +567,35 @@ pub fn dissect_apk(c: &mut Ctx, files: &[Phys], info: &AppInfo) {
             }
         } else {
             c.generic(APP, path, path, p, None);
+        }
+    }
+
+    // ---- 네이티브 라이브러리 사이의 의존 (선언된 것만: DT_NEEDED)
+    // 한 ABI의 파일만 읽고(arm64-v8a 우선) 같은 이름의 다른 ABI에 그대로 적용한다. 의존은 ABI 안에서만 잇는다.
+    {
+        let mut abis: Vec<&str> = sos.iter().map(|s| s.0).collect();
+        abis.sort();
+        abis.dedup();
+        let pick = if abis.contains(&"arm64-v8a") { Some("arm64-v8a") } else { abis.first().copied() };
+        if let Some(pick) = pick {
+            let mut edges: Vec<(&str, String)> = Vec::new();
+            for (_, name, _, p) in sos.iter().filter(|s| s.0 == pick) {
+                for need in Ctx::elf_needs(p) {
+                    edges.push((*name, need));
+                }
+            }
+            // Flutter의 구조: 앱 스냅숏(libapp.so)은 엔진(libflutter.so)이 있어야 한다
+            if flutter.is_some() {
+                edges.push(("libapp.so", "libflutter.so".to_string()));
+            }
+            for (from_name, need) in &edges {
+                for abi in &abis {
+                    let find = |n: &str| sos.iter().find(|s| s.0 == *abi && s.1 == n).map(|s| s.2);
+                    if let (Some(a), Some(b)) = (find(from_name), find(need.as_str())) {
+                        c.t.need(a, b);
+                    }
+                }
+            }
         }
     }
 

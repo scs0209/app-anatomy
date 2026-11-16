@@ -10,7 +10,7 @@ import io, json, os, re, sys
 
 TREES, RULES, OUT = sys.argv[1:4]
 
-# 표본의 고정 정보. 버전, 주소, 라이선스는 app-anatomy-samples.md 에서 옮겼다.
+# 표본의 고정 정보. 버전, 주소, 라이선스의 근거는 site/gallery/SOURCES.md 에 있다.
 SAMPLES = [
     dict(id="01-joplin", app="Joplin", version="3.7.22", runtime="electron", packaging="macos-app", repo="laurent22/joplin", license=None,
          fact="메모 앱인데 AI 추론 엔진과 글자 인식 엔진이 224 MB(37%)다"),
@@ -142,7 +142,7 @@ def apple(root, s, out, ios):
                     flat.append(c)
             for c in sorted(flat, key=lambda c: -c["b"])[:4]:
                 out.append(comp("npm-package", c["n"] + " (unpacked)", "library", "library", c["b"], "clear", "app.asar.unpacked/node_modules/" + c["n"],
-                                "확정된 표(app-anatomy-dissectors.md)에 따라 asar 안의 같은 패키지 노드에 합친다"))
+                                "확정된 표에 따라 asar 안의 같은 패키지 노드에 합친다"))
             facts["asarUnpackedBytes"] = un["b"]
         skip = {"app.asar", "app.asar.unpacked", "Frameworks", "PlugIns", exe_name, "_CodeSignature", "Info.plist", "PkgInfo"}
         loose = 0

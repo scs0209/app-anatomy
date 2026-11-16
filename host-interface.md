@@ -4,17 +4,17 @@
 
 코어(WebAssembly)는 파일 시스템과 시계를 직접 쥐지 않는다. 껍데기(브라우저 Worker, Node)가 가져오기 함수로 다섯 가지를 준다: **항목 목록, 범위 읽기, 링크 대상, 진행 보고, 시계.** 이 문서는 그 경계를 정한다.
 
-계획이 정한 것은 그대로 옮겼다. 계획에 없던 8가지는 2026-11-14에 사용자가 하나씩 보고 확정했다(끝의 표). 시제품 코어(`wasm-proto/core`)에 구현해 Node와 브라우저에서 돌려 봤다.
+계획이 정한 것은 그대로 옮겼다. 계획에 없던 8가지는 2026-11-14에 사용자가 하나씩 보고 확정했다(끝의 표). 처음에는 시제품 코어에 구현해 Node와 브라우저에서 돌려 봤고, 지금은 `core/`가 이 인터페이스를 구현한다.
 
 ## 구현 위치
 
 | 파일 | 무엇 |
 |---|---|
-| `wasm-proto/core/src/lib.rs` | 시제품 코어. 이 인터페이스를 구현한다 |
-| `wasm-proto/host/loader.mjs` | 브라우저와 Node가 함께 쓰는 로더. 가져오기 함수를 만들고 코어를 부른다 |
-| `wasm-proto/host/node-host.mjs` | Node용 입력(파일 하나, 폴더) |
-| `wasm-proto/web/worker.js` | 브라우저 Worker용 입력(`FileReaderSync`) |
-| `wasm-proto/host/test.mjs` | 인터페이스 시험 19건 |
+| `core/src/lib.rs`, `core/src/host.rs` | 코어. 이 인터페이스를 구현한다 |
+| `host/loader.mjs` | 브라우저와 Node가 함께 쓰는 로더. 가져오기 함수를 만들고 코어를 부른다 |
+| `host/node-host.mjs` | Node용 입력(파일 하나, 폴더) |
+| `site/worker.js` | 브라우저 Worker용 입력(`FileReaderSync`) |
+| `host/test.mjs` | 인터페이스 시험 19건 |
 
 ## 가져오기 함수 (호스트 → 코어), 모듈 이름 `anatomy_host`
 
