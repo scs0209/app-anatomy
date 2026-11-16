@@ -1,0 +1,52 @@
+<!doctype html>
+<!-- GitHub 소셜 프리뷰(1280×640)의 원본. 사이트를 로컬에 띄운 뒤(8767 포트) 크롬으로 찍는다:
+  node site/build.mjs && python3 -m http.server 8767 --bind 127.0.0.1 --directory site-dist
+  C="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+  "$C" --headless=new --hide-scrollbars --window-size=2000,1000 --force-device-scale-factor=2 --virtual-time-budget=20000 \
+    --screenshot=docs/social-chip.png "http://localhost:8767/index.html?lang=en&app=joplin"   # 칩이 열린 사이트 화면(중간 파일)
+  "$C" --headless=new --hide-scrollbars \
+    --window-size=1280,640 --force-device-scale-factor=2 \
+    --screenshot=social@2x.png docs/social-preview.html
+  sips -z 640 1280 social@2x.png --out docs/social-preview.png
+-->
+<meta charset="utf-8">
+<title>App Anatomy social preview</title>
+<style>
+  @font-face { font-family: "Archivo"; src: url("../site/fonts/archivo-latin-wdth-normal.woff2") format("woff2"); font-weight: 100 900; font-stretch: 62% 125%; }
+  @font-face { font-family: "JetBrains Mono"; src: url("../site/fonts/jetbrains-mono-latin-wght-normal.woff2") format("woff2"); font-weight: 100 800; }
+  :root { --board: #0A0D10; --board-2: #10151A; --rule: #212A32; --ice: #D5F3F6; --text: #E7EEF0; --soft: #93A3AB;
+    --runtime: #22D3EE; --library: #FFDD33; --app: #C83CFF; --asset: #F04A1F; --unid: #5F6970; }
+  html, body { margin: 0; background: var(--board); }
+  .card { position: relative; width: 1280px; height: 640px; overflow: hidden; background: var(--board); color: var(--text); font: 400 16px/1.5 "Archivo", sans-serif; -webkit-font-smoothing: antialiased; }
+  /* 실제 사이트 화면을 그대로 넣는다. 오른쪽 단추들은 화면 밖으로 밀려 잘린다. */
+  .site { position: absolute; left: -195px; top: -58px; width: 2000px; height: 1000px; transform: scale(.78); transform-origin: 0 0; }
+  .shade { position: absolute; inset: 0; background: linear-gradient(270deg, var(--board) 0, var(--board) 16px, rgba(10,13,16,0) 70px), linear-gradient(90deg, var(--board) 0, var(--board) 500px, rgba(10,13,16,0) 640px); }
+  .copy { position: absolute; left: 64px; top: 64px; width: 500px; }
+  .brand { font-stretch: 118%; font-weight: 800; font-size: 17px; letter-spacing: .04em; }
+  h1 { margin: 44px 0 0; font-stretch: 118%; font-weight: 800; font-size: 66px; line-height: 1.04; letter-spacing: -.015em; }
+  .sub { margin: 22px 0 0; font-size: 20px; line-height: 1.5; color: var(--soft); }
+  .sub b { display: block; color: var(--text); font-weight: 600; }
+  .cmd { position: absolute; left: 64px; bottom: 112px; padding: 13px 18px; background: var(--board-2); border: 1px solid var(--rule); font: 500 19px/1 "JetBrains Mono", monospace; color: var(--ice); }
+  .cmd i { font-style: normal; color: var(--soft); margin-right: 12px; }
+  .legend { position: absolute; left: 64px; bottom: 62px; display: flex; gap: 22px; font-size: 14px; color: var(--soft); }
+  .legend span { display: flex; align-items: center; gap: 8px; }
+  .legend span::before { content: ""; width: 18px; height: 10px; background: var(--c); }
+  .legend .u::before { background: repeating-linear-gradient(135deg, var(--unid) 0 2px, #2B333A 2px 4px); }
+  .corner { position: absolute; width: 16px; height: 16px; border: 0 solid var(--ice); }
+  .tl { left: 24px; top: 24px; border-width: 1px 0 0 1px; } .tr { right: 24px; top: 24px; border-width: 1px 1px 0 0; }
+  .bl { left: 24px; bottom: 24px; border-width: 0 0 1px 1px; } .br { right: 24px; bottom: 24px; border-width: 0 1px 1px 0; }
+</style>
+<div class="card">
+  <img class="site" src="social-chip.png" alt="">
+  <div class="shade"></div>
+  <div class="copy">
+    <div class="brand">APP ANATOMY</div>
+    <h1>See what apps are made of.</h1>
+    <p class="sub"><b>Runtime, libraries, own code and assets, with bytes.</b> Mac apps, APK, IPA. Nothing is uploaded.</p>
+  </div>
+  <div class="cmd"><i>$</i>npx app-anatomy scan --open</div>
+  <div class="legend">
+    <span style="--c: var(--runtime)">runtime</span><span style="--c: var(--library)">external library</span><span style="--c: var(--app)">app code</span><span style="--c: var(--asset)">asset</span><span class="u">unidentified</span>
+  </div>
+  <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+</div>
