@@ -194,10 +194,12 @@ export function chip(host, data, opts = {}) {
     if (it.label) it.label.material.opacity = on ? 0.28 : 1;
     const r = on ? rnd(it.cx * 7.3 + it.cz * 3.1) - 0.5 : 0; it.group.rotation.set(r * 0.07, 0, on ? (rnd(it.cz * 5.7 + it.cx) - 0.5) * 0.07 : 0); // 살짝 기운다
   }
+  // 시각은 이 함수로만 읽는다. api.clock을 주면 그 시계를 쓴다(영상을 한 장씩 찍을 때 실제 시간과 무관하게 진행시키려고).
+  const clock = () => (api && api.clock ? api.clock() : performance.now());
   const api = {
     items, total: data.total, lifted: maxLayer + 1, open: true, layers: maxLayer + 1, find,
     place(instant) {
-      const now = performance.now(), still = instant || reduced.matches;
+      const now = clock(), still = instant || reduced.matches;
       items.forEach((it, i) => {
         it.ty = baseY(it.layer) + it.layer * (api.open ? GAP : 0) + (it.layer >= api.lifted || gone(it) ? AWAY : 0) - (api.open && it.dead ? Math.min(GAP * 0.45, 6) : 0);
         it.t0 = now + (api.open ? 260 : 0) + ((api.open ? it.layer : maxLayer - it.layer) * 110 + rnd(i) * 260);
@@ -244,10 +246,11 @@ export function chip(host, data, opts = {}) {
     return moving;
   }
   let running = false, last = 0, dragging = false, onScreen = true, dead = false, snap = false, snapKeep = false;
-  function tick() { if (dead) return; const now = performance.now(), moving = frame(Math.min(0.05, (now - last) / 1000), now); last = now; if (moving || dragging || grab) next(); else running = false; }
+  function tick() { if (dead) return; if (api.manual) { running = false; return; } // manual: 스스로 돌지 않고 snapshot의 advance로만 진행한다
+    const now = clock(), moving = frame(Math.min(0.05, (now - last) / 1000), now); last = now; if (moving || dragging || grab) next(); else running = false; }
   function next() { let done = false; const go = () => { if (!done) { done = true; tick(); } }; requestAnimationFrame(go); setTimeout(go, 80); } // 화면이 가려져 있어도 멈추지 않게
-  function kick() { if (!running) { running = true; last = performance.now(); next(); } }
-  api.settle = () => { api.place(true); for (const c of callouts) c.p = api.open ? 1 : 0; frame(1, performance.now()); frame(1, performance.now()); };
+  function kick() { if (!running) { running = true; last = clock(); next(); } }
+  api.settle = () => { api.place(true); for (const c of callouts) c.p = api.open ? 1 : 0; frame(1, clock()); frame(1, clock()); };
 
   let px = 0, py = 0;
   function pick(e) {
@@ -298,7 +301,7 @@ export function chip(host, data, opts = {}) {
     const aspect = w / h, halfH = Math.max(f.halfH || 104, (f.halfW || 150) / aspect), halfW = halfH * aspect, sx = (f.shiftX || 0) * halfW, sy = (f.shiftY || 0) * halfH;
     cam.left = -halfW + sx; cam.right = halfW + sx; cam.top = halfH + sy; cam.bottom = -halfH + sy; cam.updateProjectionMatrix();
     for (const m of lineMats) m.resolution.set(w, h);
-    frame(0, performance.now());
+    frame(f.advance || 0, clock()); // advance: 이만큼(초) 움직임을 진행시킨 뒤 그린다
     const out = document.createElement("canvas"); out.width = w; out.height = h; out.getContext("2d").drawImage(canvas, 0, 0); // 그린 직후 같은 작업 안에서 옮겨야 화소가 남아 있다
     snap = false; hot = keepHot; renderer.setPixelRatio(pr); composer.setPixelRatio(pr); resize();
     return out;

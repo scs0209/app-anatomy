@@ -23,7 +23,7 @@
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/scs0209/app-anatomy/main/docs/demo.gif" width="750" alt="A chip package opens into layers showing what Joplin is made of; the Electron block is dragged out and the size drops from 613.7 MB to 327.4 MB">
+  <img src="https://raw.githubusercontent.com/scs0209/app-anatomy/main/docs/demo.gif" width="750" alt="A chip package opens into layers showing what Joplin is made of. The Electron block is dragged out: the size drops from 613.7 MB to 327.4 MB and the 276.3 MB that needs it goes dark. Then a 0.4 MB package is taken out and 217.9 MB goes down with it.">
 </p>
 
 ---
