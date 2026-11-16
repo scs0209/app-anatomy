@@ -40,6 +40,10 @@ button { font: inherit; }
 .hud > * { pointer-events: auto; }
 .hero::before { content: ""; position: absolute; inset: 0 auto 0 0; width: min(620px, 52vw); z-index: 1; background: linear-gradient(90deg, var(--board) 46%, transparent); pointer-events: none; }
 .runhead { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; font-size: 14px; color: var(--soft); }
+.runhead #nav-note { display: flex; gap: 12px; font-size: 13px; }
+.lang { color: var(--soft); text-decoration: none; }
+.lang:hover { color: #fff; }
+.lang[aria-current="true"] { color: var(--text); text-decoration: underline; text-underline-offset: 4px; }
 .runhead strong { color: var(--text); font-weight: 700; font-stretch: 118%; letter-spacing: 0.04em; text-transform: uppercase; }
 #head { display: grid; gap: 14px; margin-top: 10px; }
 #head h1 { font-size: clamp(2.1rem, 3.5vw, 3.4rem); margin: 0; }
