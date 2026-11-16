@@ -30,7 +30,7 @@ const STR = {
     galleryLoading: "Opening {0}…", galleryFail: "{0} could not be opened.",
     scanTitle: "{0} apps on this Mac", scanName: "This Mac", scanRuntime: "{0}: {1} apps, {2}", scanElectron: "Electron is installed {0} times, {1} in total.", scanMeta: "{0} on disk",
     scanSkipped: "{0} app(s) could not be analyzed and are not counted: {1}", scanLayer0: "This Mac", scanLayer1: "Apps", keyCaptionScan: "Largest apps · size on disk",
-    scanHint: "Whole Mac: run node cli/scan.mjs, then drop the file it writes here.", badJson: "This JSON file is not a result made by this tool.",
+    scanHint: "Whole Mac: run npx app-anatomy scan --open in a terminal.", langLabel: "Language", badJson: "This JSON file is not a result made by this tool.",
     copyLink: "Copy link", linkCopied: "Link copied",
     card: "Save share card", cardSaved: "Saved a 1200×630 image", cardFail: "The card could not be made.",
     searchPh: "Find by name", searchCount: "{0} found · {1} · {2}", searchNone: "No part has “{0}” in its name.",
@@ -72,7 +72,7 @@ const STR = {
     galleryLoading: "{0} 여는 중…", galleryFail: "{0}: 열지 못했습니다.",
     scanTitle: "이 맥의 앱 {0}개", scanName: "이 맥", scanRuntime: "{0}: 앱 {1}개, {2}", scanElectron: "Electron이 {0}벌 깔려 있고 합쳐서 {1}입니다.", scanMeta: "디스크에서 {0}",
     scanSkipped: "앱 {0}개는 해석하지 못해 합계에 넣지 않았습니다: {1}", scanLayer0: "이 맥", scanLayer1: "앱", keyCaptionScan: "큰 앱 · 디스크에서의 크기",
-    scanHint: "맥 전체: node cli/scan.mjs 를 돌리고, 만들어진 파일을 여기에 놓으세요.", badJson: "이 JSON 파일은 이 도구가 만든 결과가 아닙니다.",
+    scanHint: "맥 전체: 터미널에서 npx app-anatomy scan --open 을 돌리세요.", langLabel: "언어", badJson: "이 JSON 파일은 이 도구가 만든 결과가 아닙니다.",
     copyLink: "링크 복사", linkCopied: "링크를 복사했습니다",
     card: "공유 카드 저장", cardSaved: "1200×630 그림으로 저장했습니다", cardFail: "카드를 만들지 못했습니다.",
     searchPh: "이름으로 찾기", searchCount: "{0}개 찾음 · {1} · {2}", searchNone: "“{0}”: 그런 이름의 부품이 없습니다.",
@@ -93,7 +93,11 @@ const STR = {
 };
 // 주소에 ?lang=en 또는 ?lang=ko 를 붙이면 브라우저 설정보다 먼저 따른다.
 const asked = new URLSearchParams(location.search).get("lang");
-const lang = asked === "ko" || asked === "en" ? asked : (navigator.language || "en").toLowerCase().startsWith("ko") ? "ko" : "en";
+// 그다음은 지난번에 고른 언어(이 브라우저에만 기억한다), 그다음이 브라우저의 언어 설정이다.
+const known = v => v === "ko" || v === "en";
+let stored = null; try { stored = localStorage.getItem("lang"); } catch { /* 기억하지 못해도 동작한다 */ }
+const lang = known(asked) ? asked : known(stored) ? stored : (navigator.language || "en").toLowerCase().startsWith("ko") ? "ko" : "en";
+if (known(asked)) try { localStorage.setItem("lang", asked); } catch { /* 위와 같다 */ }
 document.documentElement.lang = lang;
 const t = (k, ...a) => (STR[lang][k] ?? STR.en[k] ?? k).replace(/\{(\d)\}/g, (_, i) => a[+i]);
 
@@ -122,6 +126,16 @@ window.__state = state; // 자동 시험용
 $("drop-text").textContent = t("loading"); $("pick-text").textContent = t("pick");
 $("drop-note").textContent = t("formats") + " · " + t("privacy"); $("folder-hint").textContent = t("folderHint") + " " + t("scanHint");
 $("overlay-text").textContent = t("dropNow"); $("back-sample").textContent = t("backSample");
+// 언어 고르기: 지금 주소에 lang만 바꿔 붙인 링크 둘. 지금 언어에는 표시를 한다.
+{
+  const nav = $("nav-note"); nav.setAttribute("role", "group"); nav.setAttribute("aria-label", t("langLabel"));
+  for (const [code, label] of [["en", "English"], ["ko", "한국어"]]) {
+    const u = new URL(location.href); u.searchParams.set("lang", code);
+    const a = el("a", "lang", label); a.href = u.href; a.lang = code; if (code === lang) a.setAttribute("aria-current", "true");
+    a.addEventListener("click", () => { const now = new URL(location.href); now.searchParams.set("lang", code); a.href = now.href; }); // 갤러리에서 앱을 바꾼 뒤에도 지금 보던 앱으로 간다
+    nav.append(a);
+  }
+}
 $("hint").textContent = t("hint"); $("tabs").setAttribute("aria-label", t("layersLabel")); $("legend").setAttribute("aria-label", t("colorsLabel"));
 $("foot").append(el("p", null, t("browsers")));
 for (const n of [{ o: "runtime" }, { o: "library" }, { o: "app-code" }, { o: "asset" }, { o: "bundled-app-code" }, { o: "unidentified" }, { k: "overhead" }]) {

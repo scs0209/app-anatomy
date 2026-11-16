@@ -19,7 +19,8 @@
   <a href="#-how-to-read-it"><b>How to read it</b></a> ·
   <a href="#-gallery">Gallery</a> ·
   <a href="#-how-it-works">How it works</a> ·
-  <a href="CONTRIBUTING.md">Contribute a rule</a>
+  <a href="CONTRIBUTING.md">Contribute a rule</a> ·
+  <a href="README.ko.md">한국어</a>
 </p>
 
 <p align="center">
@@ -78,7 +79,7 @@ identified 94.0% · not looked inside 6.5% · overhead 2.8%
 
 **In the browser, by drag and drop:** [scs0209.github.io/app-anatomy](https://scs0209.github.io/app-anatomy/) does the same without the terminal: drop an app file, or
 browse the [gallery](https://scs0209.github.io/app-anatomy/?app=rocket-chat). Files are analyzed in your browser tab and never leave it. It can also
-reopen a saved result JSON. To run the site yourself:
+reopen a saved result JSON. The site is in English and Korean; switch at the top right. To run the site yourself:
 
 ```bash
 git clone https://github.com/scs0209/app-anatomy && cd app-anatomy
@@ -95,6 +96,7 @@ node site/build.mjs && python3 -m http.server 8767 --bind 127.0.0.1 --directory 
 | **Gray with hatching** | unidentified: no rule names it yet |
 | **A color with hatching** | we know whose it is but did not look inside (for example an app's bundled code) |
 | **Traced labels** | the largest parts, with size and share |
+| **A block gone dark and sagging** | a part that declared it needs the block you took out |
 
 One sign carries one meaning. Nothing decorative is drawn in an origin color.
 
@@ -235,6 +237,7 @@ third-party libraries from shared rules, and can look at everything installed on
 
 * **Scanning a machine is macOS only.**
 * **Native apps are mostly unidentified** until rules exist for their libraries.
+* **Dependencies are the declared ones only.** Nothing is run to confirm them.
 * **Encrypted iOS apps** (App Store downloads) show structure only.
 * **"Not looked inside"** parts are attributed to an origin but not broken down further.
 * **Checked in Chromium-based browsers.** Safari and Firefox are not verified yet.
@@ -257,6 +260,7 @@ site/     the static site: 3D chip, treemap, list, search, share card, gallery
 rules/    identification rules and the tools to write and check them
 schema/   the result format and the rule format
 host/     the code that feeds bytes to the analyzer in Node and in the browser
+skills/   a skill for coding agents
 ```
 
 If App Anatomy is useful to you, **a ⭐ on this repo helps more people find it.**
