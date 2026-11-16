@@ -148,11 +148,15 @@ export interface Node {
   failure?: ParseFailure;
   /** 파일 종류. 잎 노드에만 있다. 파일의 일부인 잎은 그 파일의 종류를 물려받는다. */
   fileKind?: FileKind;
+  /** 의존 관계의 끝점이 되는 노드에만 있는 번호. 한 결과 안에서 겹치지 않는다. */
+  id?: number;
   kind: NodeKind;
   /** `kind`가 `link`일 때만 있다. */
   link?: LinkInfo;
   /** 형제끼리 겹치지 않는 이름. 뿌리부터의 이름 목록이 노드의 주소다. */
   name: string;
+  /** 이 노드가 필요로 한다고 파일에 적혀 있는 노드들의 `id`. 오름차순, 겹치지 않는다. 근거는 선언된 것뿐이다: npm 패키지의 `dependencies`, ELF의 `DT_NEEDED`, Mach-O의 `LC_LOAD_DYLIB`, 그리고 런타임 구조(Electron의 앱 묶음은 프레임워크를 필요로 한다). 실행해서 확인한 것이 아니다. 자식 노드는 부모의 `needs`를 물려받는다고 읽는다. 앱 밖의 것(시스템 라이브러리)은 담지 않는다. */
+  needs?: number[];
   /** 한 덩어리로 묶여 있어 모듈 층이 없으면 true. */
   noModuleLayer?: boolean;
   /** 출처. `container`, `overhead`, `shared`, `link`, `parse-failed`에는 없다. */

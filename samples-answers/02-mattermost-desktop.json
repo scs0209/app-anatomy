@@ -54,7 +54,7 @@
     "bytes": 1623334,
     "status": "clear",
     "basis": "app.asar.unpacked/node_modules/@koromix/koffi-darwin-x64",
-    "note": "확정된 표(app-anatomy-dissectors.md)에 따라 asar 안의 같은 패키지 노드에 합친다"
+    "note": "확정된 표에 따라 asar 안의 같은 패키지 노드에 합친다"
    },
    {
     "match": {
@@ -66,7 +66,7 @@
     "bytes": 1241998,
     "status": "clear",
     "basis": "app.asar.unpacked/node_modules/@koromix/koffi-darwin-arm64",
-    "note": "확정된 표(app-anatomy-dissectors.md)에 따라 asar 안의 같은 패키지 노드에 합친다"
+    "note": "확정된 표에 따라 asar 안의 같은 패키지 노드에 합친다"
    },
    {
     "match": {
@@ -89,7 +89,7 @@
     "bytes": 820677,
     "status": "clear",
     "basis": "app.asar.unpacked/node_modules/macos-notification-state",
-    "note": "확정된 표(app-anatomy-dissectors.md)에 따라 asar 안의 같은 패키지 노드에 합친다"
+    "note": "확정된 표에 따라 asar 안의 같은 패키지 노드에 합친다"
    },
    {
     "match": {
@@ -101,7 +101,7 @@
     "bytes": 644158,
     "status": "clear",
     "basis": "app.asar.unpacked/node_modules/windows-focus-assist",
-    "note": "확정된 표(app-anatomy-dissectors.md)에 따라 asar 안의 같은 패키지 노드에 합친다"
+    "note": "확정된 표에 따라 asar 안의 같은 패키지 노드에 합친다"
    },
    {
     "match": {

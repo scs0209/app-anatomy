@@ -44,7 +44,7 @@ None yet. The name is a working name and there is no logo.
 
 ## Evidence on Hand
 
-- Real analysis results for 12 open-source apps (Joplin, Mattermost Desktop, Standard Notes, LocalSend, AppFlowy, Immich, Mattermost Mobile, Rocket.Chat, Joplin Android, NewPipe, Maccy, UTM), with notes in `app-anatomy-findings.md` and answer keys in `samples-answers/`.
+- Real analysis results for 12 open-source apps (Joplin, Mattermost Desktop, Standard Notes, LocalSend, AppFlowy, Immich, Mattermost Mobile, Rocket.Chat, Joplin Android, NewPipe, Maccy, UTM), with answer keys in `samples-answers/`.
 - A working core, command-line tool and site shell (`core/`, `cli/`, `site/`).
 - There are no users, testimonials, customer logos, download counts or benchmarks against other tools. Do not invent any.
 

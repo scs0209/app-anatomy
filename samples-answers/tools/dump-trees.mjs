@@ -1,11 +1,11 @@
-// 표본마다 시제품 코어의 트리와 해시를 파일로 낸다. 사용법: node dump-trees.mjs <출력 폴더> <표본 파일...>
+// 표본마다 코어의 트리와 해시를 파일로 낸다. 처음에는 시제품 코어용으로 썼고, 지금의 코어로 다시 돌려 보지는 않았다. 사용법: node dump-trees.mjs <출력 폴더> <표본 파일...>
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createCore, INPUT_FILE } from "../../wasm-proto/host/loader.mjs";
-import { fileSource } from "../../wasm-proto/host/node-host.mjs";
+import { createCore, INPUT_FILE } from "../../host/loader.mjs";
+import { fileSource } from "../../host/node-host.mjs";
 const here = path.dirname(fileURLToPath(import.meta.url));
-const module = await WebAssembly.compile(fs.readFileSync(path.join(here, "../../wasm-proto/web/core.wasm")));
+const module = await WebAssembly.compile(fs.readFileSync(path.join(here, "../../dist/anatomy_core.wasm")));
 const [out, ...files] = process.argv.slice(2);
 for (const f of files) {
   const src = fileSource(f);

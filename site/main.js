@@ -21,7 +21,9 @@ const STR = {
     unsupportedRuntime: "detected only: {0}", unidHalf: "Within the identified {0}: ", contribute: "More than half is unidentified. Rules can be contributed.",
     save: "Save result JSON", hashing: "Computing the hash…", saved: "Saved",
     sampleTitle: "{0}, opened like a chip", close: "Close", open: "Open", hint: "Drag the board to rotate. Drag a block out to remove it.", dropOut: "Drop to take it out",
-    whatIfRemoved: "{0} taken out:", whatIfUndo: "Put the last one back", whatIfReset: "Put everything back", whatIfNote: "This only recounts size. It does not mean the app would still work without them.", shareElectron: "What if the {0} Electron apps shared one copy?", layersLabel: "Layers", colorsLabel: "Colors",
+    whatIfRemoved: "{0} taken out:", whatIfUndo: "Put the last one back", whatIfReset: "Put everything back", whatIfNote: "This only recounts size. It does not mean the app would still work without them.",
+    whatIfFalls: "{0} more go down with it ({1}):", whatIfLeft: "Still usable:", whatIfNoFalls: "Nothing in this app declares that it needs it.",
+    whatIfNoteDeps: "From what the files declare (package dependencies, linked libraries). Not checked by running the app; undeclared dependencies do not show.", depTip: "needs {0} · needed by {1}", shareElectron: "What if the {0} Electron apps shared one copy?", layersLabel: "Layers", colorsLabel: "Colors",
     layer0: "App", layer1: "Runtime", layer2: "Libraries", layer3: "Modules", layerTitle: "Show up to the {0} layer, or remove it",
     keyCaption: "Largest parts · {0} · uncompressed size", partsTitle: "All parts", partsSub: "The same parts as the chip, as a list. Point at a row to light it up on the chip.",
     galleryTitle: "Gallery", gallerySub: "{0} open-source apps, analyzed with this tool ({1}). Choose one to open it on the board.", galleryNote: "Licenses are each project's own, as shown on GitHub on 2026-11-15. Parts inside an app carry their own licenses. These are measurements of the released files, not the files. This project is not affiliated with these apps.", sourceLabel: "Source", releaseOf: "release {0}", sourceOf: "Source of {0}: {1} on GitHub",
@@ -61,7 +63,9 @@ const STR = {
     unsupportedRuntime: "미지원 런타임: {0}", unidHalf: "식별된 {0} 안에서는 ", contribute: "절반 넘게 미식별입니다. 규칙을 기여할 수 있습니다.",
     save: "결과 JSON 저장", hashing: "해시 계산 중…", saved: "저장했습니다",
     sampleTitle: "칩처럼 열어 본 {0}", close: "닫기", open: "열기", hint: "빈 곳을 끌면 돌아가고, 블록을 끌어내면 빠집니다", dropOut: "놓으면 빠집니다",
-    whatIfRemoved: "{0}개를 뺌:", whatIfUndo: "마지막 것 되돌리기", whatIfReset: "모두 되돌리기", whatIfNote: "크기만 다시 센 것입니다. 빼도 앱이 동작한다는 뜻은 아닙니다.", shareElectron: "Electron 앱 {0}개가 한 벌을 같이 쓴다면?", layersLabel: "층 고르기", colorsLabel: "색",
+    whatIfRemoved: "{0}개를 뺌:", whatIfUndo: "마지막 것 되돌리기", whatIfReset: "모두 되돌리기", whatIfNote: "크기만 다시 센 것입니다. 빼도 앱이 동작한다는 뜻은 아닙니다.",
+    whatIfFalls: "이것에 기대던 {0}개({1})가 함께 무너집니다:", whatIfLeft: "쓸 수 있는 것:", whatIfNoFalls: "이 앱 안에서 이것을 필요로 한다고 적힌 부품은 없습니다.",
+    whatIfNoteDeps: "파일에 적힌 의존 관계(패키지 의존, 연결된 라이브러리) 기준입니다. 앱을 실행해 확인한 것이 아니며, 적히지 않은 의존은 보이지 않습니다.", depTip: "필요로 하는 것 {0} · 이것을 필요로 하는 것 {1}", shareElectron: "Electron 앱 {0}개가 한 벌을 같이 쓴다면?", layersLabel: "층 고르기", colorsLabel: "색",
     layer0: "앱", layer1: "런타임", layer2: "라이브러리", layer3: "모듈", layerTitle: "{0} 층까지 보거나 이 층을 걷어 냅니다",
     keyCaption: "큰 부품 · {0} · 압축을 푼 크기", partsTitle: "부품 전체", partsSub: "칩과 같은 부품을 목록으로 봅니다. 줄에 올리면 칩에서 그 부품이 밝아집니다.",
     galleryTitle: "갤러리", gallerySub: "공개 앱 {0}개를 이 도구({1})로 해석한 결과입니다. 고르면 위 기판에 열립니다.", galleryNote: "라이선스는 각 프로젝트 자신의 것으로, 2026-11-15에 GitHub에 표시된 내용입니다. 앱 안의 부품은 저마다 다른 라이선스를 가집니다. 여기 있는 것은 배포 파일을 잰 결과이며 파일 자체가 아닙니다. 이 프로젝트는 이 앱들과 관계가 없습니다.", sourceLabel: "출처", releaseOf: "릴리스 {0}", sourceOf: "{0}의 출처: GitHub의 {1}",
@@ -111,7 +115,7 @@ function swatch(n) {
 }
 const reduced = matchMedia("(prefers-reduced-motion: reduce)"), narrow = matchMedia("(max-width: 900px)");
 
-const state = { removed: [], ready: false, module: null, rules: [], sample: null, job: 0, worker: null, timer: null, queued: null, shown: null, prev: null, toolVersion: "", rulesVersion: "", chip: null, mount: 0 };
+const state = { removed: [], shared: new Set(), fallen: new Set(), ready: false, module: null, rules: [], sample: null, job: 0, worker: null, timer: null, queued: null, shown: null, prev: null, toolVersion: "", rulesVersion: "", chip: null, mount: 0 };
 window.__state = state; // 자동 시험용
 
 // ---------------------------------------------------------------- 정적 글자
@@ -135,16 +139,44 @@ const fontsReady = Promise.race([
 ]);
 function dropChip() {
   if (state.chip) { state.chip.dispose(); state.chip = null; }
-  $("stage").textContent = ""; $("tabs").textContent = ""; $("key").hidden = true; state.tops = null; state.removed = []; $("whatif").hidden = true;
+  $("stage").textContent = ""; $("tabs").textContent = ""; $("key").hidden = true; state.tops = null; state.removed = []; state.shared = new Set(); state.fallen = new Set(); $("whatif").hidden = true;
 }
 function no3d(on, flat) { document.documentElement.classList.toggle("no3d", on); document.documentElement.classList.toggle("flat2d", !!flat); }
 // ---------------------------------------------------------------- 빼 보기
 // 부품을 뺐을 때 크기가 얼마가 되는지만 센다. 빼도 앱이 동작한다는 뜻이 아니다(무엇이 무엇에 기대는지는 재지 않는다).
-function toggleRemoved(its) {
+// 의존 관계: 결과의 노드에 적힌 id와 needs로 "누가 누구를 필요로 하는지"를 거꾸로 찾을 수 있게 해 둔다.
+// 근거는 파일에 선언된 것뿐이다(npm의 dependencies, ELF의 DT_NEEDED, Mach-O의 LC_LOAD_DYLIB, Electron의 구조).
+function depIndex(doc) {
+  if (doc._dep) return doc._dep;
+  const byId = new Map(), needers = new Map(); let edges = 0;
+  (function walk(n) { if (n.id != null) byId.set(n.id, n); for (const c of n.children || []) walk(c); })(doc.root);
+  (function walk(n) { for (const id of n.needs || []) { const to = byId.get(id); if (to) { if (!needers.has(to)) needers.set(to, []); needers.get(to).push(n); edges++; } } for (const c of n.children || []) walk(c); })(doc.root);
+  Object.defineProperty(doc, "_dep", { value: { byId, needers, edges }, enumerable: false }); // 저장할 때 따라 나가지 않게
+  return doc._dep;
+}
+// 빠진 노드들(seeds)에 기대던 노드를 끝까지 따라가 모은다. 무너진 노드의 자식도 함께 무너진다(부모의 needs를 물려받는다).
+function fallenNodes(doc, seeds) {
+  const { needers } = depIndex(doc), gone = new Set(), fallen = new Set(), queue = [];
+  const take = (n, into) => { (function w(x) { if (gone.has(x)) return; gone.add(x); if (into) into.add(x); queue.push(x); for (const c of x.children || []) w(c); })(n); };
+  for (const s of seeds) take(s, null);
+  while (queue.length) for (const n of needers.get(queue.pop()) || []) if (!gone.has(n)) take(n, fallen);
+  return fallen;
+}
+function applyRemoved() {
+  const c = state.chip, doc = state.shown && state.shown.kind === "doc" ? state.shown.doc : null; if (!c || c.nogl || !doc) return;
+  // "한 벌을 같이 쓴다면"으로 뺀 것은 기대던 것을 무너뜨리지 않는다: 없어지는 것이 아니라 하나를 나눠 쓰는 가정이다
+  const seeds = state.removed.filter(i => !state.shared.has(i)).map(i => i.node.src).filter(Boolean);
+  const F = state.fallen = seeds.length && depIndex(doc).edges ? fallenNodes(doc, seeds) : new Set();
+  c.setRemoved(state.removed);
+  c.setFallen(F.size ? c.items.filter(i => F.has(i.node.src) || (i.node.sp && F.has(i.node.sp))) : []);
+  whatIf();
+}
+function toggleRemoved(its, shared) {
   const c = state.chip; if (!c || c.nogl) return;
   const cur = state.removed, all = its.every(i => cur.includes(i));
   state.removed = all ? cur.filter(i => !its.includes(i)) : cur.concat(its.filter(i => !cur.includes(i)));
-  c.setRemoved(state.removed); whatIf();
+  for (const i of its) if (shared && !all) state.shared.add(i); else state.shared.delete(i);
+  applyRemoved();
 }
 // 맥을 훑은 결과에서 Electron 프레임워크 본체들(큰 순서). 그려진 것만.
 function electronCopies(doc, c) {
@@ -161,23 +193,39 @@ function whatIf() {
   const rem = state.removed, set = new Set(rem), T = c.total;
   const top = rem.filter(it => { for (let x = it.parent; x; x = x.parent) if (set.has(x)) return false; return true; }); // 부모와 자식을 같이 뺐으면 부모만 센다
   const bytes = top.reduce((sum, it) => sum + it.node.b, 0);
+  // 함께 무너지는 것: 무너진 노드 가운데 맨 바깥의 것만 세고 더한다
+  const dep = depIndex(doc), F = state.fallen || new Set(), fellTop = [];
+  if (F.size) (function walk(n) { if (F.has(n)) { fellTop.push(n); return; } for (const c of n.children || []) walk(c); })(doc.root);
+  fellTop.sort((a, b) => b.bytes - a.bytes);
+  const fellBytes = fellTop.reduce((sum, n) => sum + n.bytes, 0);
   const copies = doc.scan ? electronCopies(doc, c) : [], extra = copies.slice(1), shareable = extra.length > 0 && !extra.every(i => set.has(i));
   for (const tr of $("key").tBodies[0].children) tr.classList.toggle("gone", !!tr._its && tr._its.every(i => { for (let x = i; x; x = x.parent) if (set.has(x)) return true; return false; }));
   if (!rem.length && !shareable) { box.hidden = true; return; }
   if (rem.length) {
     const sum = el("p", "sum num"); sum.append(`${fmt(T)} → `, el("b", null, fmt(T - bytes)), ` (−${pct(bytes, T)})`); box.append(sum);
     box.append(el("p", "what", t("whatIfRemoved", top.length) + " " + top.slice(-3).reverse().map(it => it.node.n === "(app)" ? originWord(it.node) : short(it.node.n)).join(", ") + (top.length > 3 ? " …" : "")));
+    if (fellTop.length) {
+      // 빠진 것에 기대던 것들. 크기만이 아니라 "그것 없이는 쓸 수 없게 되는 것"을 보인다.
+      const p = el("p", "falls"); p.append(el("b", null, t("whatIfFalls", fellTop.length, fmt(fellBytes))), " " + fellTop.slice(0, 3).map(n => n.name === "(app)" ? t("o_bundled-app-code") : short(n.name)).join(", ") + (fellTop.length > 3 ? " …" : "")); box.append(p);
+      const left = el("p", "sum num"); left.append(t("whatIfLeft") + " ", el("b", null, fmt(T - bytes - fellBytes)), ` (${pct(T - bytes - fellBytes, T)})`); box.append(left);
+    } else if (dep.edges && rem.some(i => !state.shared.has(i))) box.append(el("p", "what", t("whatIfNoFalls")));
   }
   const acts = el("div", "acts");
-  if (shareable) { const b = el("button", "link", t("shareElectron", copies.length)); b.id = "share-electron"; b.addEventListener("click", () => toggleRemoved(extra.filter(i => !set.has(i)))); acts.append(b); }
+  if (shareable) { const b = el("button", "link", t("shareElectron", copies.length)); b.id = "share-electron"; b.addEventListener("click", () => toggleRemoved(extra.filter(i => !set.has(i)), true)); acts.append(b); }
   if (rem.length) {
     const undo = el("button", "link", t("whatIfUndo")), reset = el("button", "link", t("whatIfReset")); undo.id = "whatif-undo"; reset.id = "whatif-reset";
-    undo.addEventListener("click", () => { state.removed = state.removed.slice(0, -1); c.setRemoved(state.removed); whatIf(); });
-    reset.addEventListener("click", () => { state.removed = []; c.setRemoved([]); whatIf(); });
+    undo.addEventListener("click", () => { state.shared.delete(state.removed[state.removed.length - 1]); state.removed = state.removed.slice(0, -1); applyRemoved(); });
+    reset.addEventListener("click", () => { state.removed = []; state.shared.clear(); applyRemoved(); });
     acts.append(undo, reset);
   }
-  box.append(acts, el("p", "fine", t("whatIfNote")));
+  box.append(acts, el("p", "fine", t(dep.edges ? "whatIfNoteDeps" : "whatIfNote")));
   box.hidden = false;
+}
+// 블록에 올렸을 때 덧붙이는 한 줄: 이 부품이 필요로 하는 것과 이 부품을 필요로 하는 것의 수
+function depText(n) {
+  const doc = state.shown && state.shown.kind === "doc" ? state.shown.doc : null, src = n.src; if (!doc || !src) return "";
+  const needs = (src.needs || []).length, by = (depIndex(doc).needers.get(src) || []).length;
+  return needs || by ? t("depTip", needs, by) : "";
 }
 function syncChip() {
   const c = state.chip; if (!c) return;
@@ -196,7 +244,7 @@ async function mountChip(doc, firstLoad) {
   const c = state.chip = flat
     ? V.flat($("stage"), data, { originWord, swatch, labelLayer: doc.scan ? 1 : 2, hint: t("flatHint"), alt: t("flatAlt", doc.input.name) })
     : V.chip($("stage"), data, { ...base, calloutLayer: doc.scan ? 1 : 2,
-        dropText: t("dropOut"), onPick: it => { if (it.layer >= 1) toggleRemoved([it]); }, // 블록을 끌어내 놓았을 때 불린다
+        dropText: t("dropOut"), depText, onPick: it => { if (it.layer >= 1) toggleRemoved([it]); }, // 블록을 끌어내 놓았을 때 불린다
         callouts: innerWidth >= 1560 ? 6 : innerWidth >= 1240 ? 5 : 4, // 좁을수록 라벨을 줄여 오른쪽 층 단추와 겹치지 않게 한다
         halfH: 124, halfW: 150, shiftX: -0.3, shiftY: -0.2, gap: 16,
         onHover: it => { for (const tr of body.children) tr.classList.toggle("hot", !!it && (tr._its.includes(it) || tr._its.includes(it.parent))); } });
@@ -598,6 +646,7 @@ async function loadGallery() {
   return apps;
 }
 const galleryReady = loadGallery();
+window.__remove = its => toggleRemoved(its); // 자동 시험용: 부품을 빼거나 되돌린다
 window.__analyze = input => start(input); // 자동 시험용: 페이지 안에서 Blob으로 해석을 시작한다
 
 // ---------------------------------------------------------------- 첫 로드

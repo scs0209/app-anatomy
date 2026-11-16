@@ -55,6 +55,8 @@ button { font: inherit; }
 .whatif .sum { font-size: 15px; color: var(--text); }
 .whatif .sum b { font-weight: 700; }
 .whatif .what { color: var(--soft); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.whatif .falls { color: var(--text); font-size: 13px; }
+.whatif .falls b { font-weight: 700; }
 .whatif .fine { color: var(--soft); font-size: 12px; }
 .whatif .acts { display: flex; flex-wrap: wrap; gap: 6px 14px; }
 .key tbody tr { cursor: pointer; }

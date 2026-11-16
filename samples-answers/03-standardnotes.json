@@ -98,7 +98,7 @@
     "bytes": 4147440,
     "status": "clear",
     "basis": "app.asar.unpacked/node_modules/sqlite3",
-    "note": "확정된 표(app-anatomy-dissectors.md)에 따라 asar 안의 같은 패키지 노드에 합친다"
+    "note": "확정된 표에 따라 asar 안의 같은 패키지 노드에 합친다"
    },
    {
     "match": {
@@ -143,7 +143,7 @@
     "bytes": 3249384,
     "status": "clear",
     "basis": "app.asar.unpacked/node_modules/microtime",
-    "note": "확정된 표(app-anatomy-dissectors.md)에 따라 asar 안의 같은 패키지 노드에 합친다"
+    "note": "확정된 표에 따라 asar 안의 같은 패키지 노드에 합친다"
    },
    {
     "match": {
@@ -188,7 +188,7 @@
     "bytes": 301902,
     "status": "clear",
     "basis": "app.asar.unpacked/node_modules/cbor-extract",
-    "note": "확정된 표(app-anatomy-dissectors.md)에 따라 asar 안의 같은 패키지 노드에 합친다"
+    "note": "확정된 표에 따라 asar 안의 같은 패키지 노드에 합친다"
    },
    {
     "match": {
@@ -200,7 +200,7 @@
     "bytes": 141696,
     "status": "clear",
     "basis": "app.asar.unpacked/node_modules/@cbor-extract/cbor-extract-darwin-arm64",
-    "note": "확정된 표(app-anatomy-dissectors.md)에 따라 asar 안의 같은 패키지 노드에 합친다"
+    "note": "확정된 표에 따라 asar 안의 같은 패키지 노드에 합친다"
    },
    {
     "match": {

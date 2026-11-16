@@ -81,6 +81,39 @@ gzip 크기와 첫 화면이 실제로 내려받는 양은 재지 않았다.
 - 확인하지 못한 것: `rules.yml`의 GitHub 실행(아직 올리지 않았다), 다른 사람이 안내서만 보고 따라 할 수 있는지. `dex-class`, `framework-name`, `path`, `npm-package` 규칙을 새로 써서 넣어 보는 것(기존 규칙이 동작하는 것만 알고 있다).
 - 알아 둘 것: 안내서의 복제 주소는 저장소가 공개된 뒤에야 다른 사람에게 통한다. npm의 0.1.0에는 이 규칙과 영어 메시지가 없다.
 
+## 빼면 무엇이 무너지는가: 의존 관계 (2026-11-16 추가)
+
+"빼 보기"가 크기만 바꾸면 요점이 없다는 사용자 의견으로 넣었다. 부품을 빼면 **그것을 필요로 한다고 적힌 부품들이 함께 무너진다.**
+
+- 근거는 파일에 **선언된** 것뿐이다. 실행해서 확인하지 않는다.
+  - npm 패키지: asar 안 `package.json`의 `dependencies`. 맨 위 `package.json`은 앱 자체 코드("(app)")의 것이다.
+  - Android `.so`: ELF의 `DT_NEEDED`. 한 ABI만 읽고(arm64-v8a 우선) 같은 이름의 다른 ABI에 적용한다. 의존은 같은 ABI 안에서만 잇는다.
+  - macOS·iOS 실행 파일과 프레임워크: Mach-O의 `LC_LOAD_DYLIB`(약한 것, 다시 내보내는 것 포함). `@rpath/`, `@executable_path/`, `@loader_path/`로 시작하는 앱 안의 것만. 시스템 라이브러리는 담지 않는다.
+  - 구조: Electron 런타임이 소유한 나머지(앱 묶음, 헬퍼 앱, 실행기)는 프레임워크 본체를 필요로 한다. Flutter의 `libapp.so`는 `libflutter.so`를 필요로 한다.
+- 결과 형식: 노드에 `id`(의존의 끝점에만)와 `needs`(필요로 하는 노드의 id 목록)가 생겼다. 자식은 부모의 `needs`를 물려받는다고 읽는다. 더하기만 했으므로 `schemaVersion`은 1 그대로다. `schema/`의 JSON Schema와 타입을 다시 만들었다.
+- 해석기: `core/src/phys.rs`의 `read_ranges`(항목 안의 여러 구간 읽기. 압축된 항목은 한 번만 풀며 지나간다), `parsers.rs`의 `npm_deps`, `macho_dylibs`, `elf_dynamic`/`elf_needed`, `dissect.rs`의 연결. 단위 시험 3건을 더했다(코어 시험 7건 통과).
+- 화면: 무너진 블록은 색을 잃고 살짝 기울어 제 층에서 내려앉는다(좁은 화면의 트리맵에서는 어둡게). 왼쪽 칸에 "이것에 기대던 N개(X MB)가 함께 무너집니다"와 "쓸 수 있는 것: Y MB"가 나온다. 기대는 것이 적혀 있지 않으면 그렇게 말한다. 블록에 올리면 "필요로 하는 것 N · 이것을 필요로 하는 것 M"이 덧붙는다.
+- "Electron 앱이 한 벌을 같이 쓴다면?"으로 뺀 것은 기대던 것을 무너뜨리지 않는다(없애는 것이 아니라 나눠 쓰는 가정이다).
+- 맥 전체를 훑을 때는 앱마다의 id가 겹치지 않게 다시 매긴다. 작아서 묶인 부품의 의존은 사라진다(이 기기의 결과에서 90개 가운데 34개).
+- 2026-11-16에 확인한 것:
+
+| 표본 | 의존 | 걸린 시간(해시 제외) |
+|---|---|---|
+| Joplin 3.7.22 (ZIP, asar가 압축돼 있음) | 289개: 패키지 사이 284, 묶음 → 프레임워크 5 | 0.5초 |
+| Rocket.Chat 4.78.1 (APK) | 368개: `.so` 사이. `libc++_shared.so`가 88번, `libfbjni.so` 76번 | 0.1초 |
+| LocalSend 1.18.2 (APK) | 1개: `libapp.so` → `libflutter.so` | 0.1초 |
+| 이 기기의 앱(Electron, Flutter, 네이티브 한 개씩) | 10, 35, 3개. 예: Squirrel → ReactiveObjC, Mantle | — |
+
+  - Joplin에서 Electron Framework를 빼면: 613.7 → 327.4 MB, 그리고 기대던 6개(276.3 MB: app.asar와 헬퍼 앱들)가 무너져 쓸 수 있는 것은 51.1 MB(8.3%).
+  - Joplin에서 `onnxruntime-common`(0.4 MB)을 빼면: 기대던 3개(onnxruntime-web, 자체 코드 묶음, transformers. 217.9 MB)가 무너진다.
+  - 기대는 것이 없는 부품(Tesseract.js core)을 빼면 "필요로 한다고 적힌 부품은 없습니다"가 나온다. 되돌리면 모두 돌아온다. 콘솔 오류 없음.
+  - 바이트 합계와 식별 비율은 전과 같다(613.7 MB 99.3%, 226.7 MB 94.0%).
+- 갤러리 12개를 새 해석기로 모두 다시 만들었다(2026-11-16). 의존의 수: Standard Notes 1,417, UTM(iOS) 517, Rocket.Chat 368, Joplin 289, Joplin Android 260, AppFlowy 135, Mattermost Desktop 10, Mattermost iOS 5, Maccy·Immich·LocalSend 1, NewPipe 0. 끝점이 없는 의존은 12개 모두 0건이다. 이때 새 릴리스 셋이 함께 갱신됐다: Mattermost Desktop 6.4.0(308.6 → 280.2 MB), AppFlowy 0.15.1, Mattermost iOS 2.46.0(해석기 경고 1건).
+- 좁은 화면(375px)과 영어 화면에서 Electron Framework를 빼는 경우를 확인했다.
+- 확인하지 못한 것: iOS 앱의 의존이 맞는지(수만 봤다), 브라우저에서 큰 압축 asar를 읽을 때의 시간(Node에서만 쟀다), 읽어 낸 의존이 실제와 맞는지의 넓은 대조. Mach-O는 이 기기의 프레임워크 하나(Squirrel)를 `otool -L`과 비교해 일치했다. ELF는 `readelf -d`와 비교하지 않았다.
+- 한계: 선언되지 않은 의존은 보이지 않는다. 실행 중에 이름으로 불러오는 것, Android 자바 클래스 사이의 참조, React Native의 JS 묶음이 네이티브 모듈을 쓰는 것, `optionalDependencies`와 `peerDependencies`. asar 안에서 겹쳐 든 패키지(`a/node_modules/b`)는 맨 위 패키지 `a`에 합쳐져 있어 그 사이의 의존은 따로 보이지 않는다. 부품의 일부만 빼면(라이브러리 안의 모듈 하나) 그 라이브러리에 기대던 것은 무너지지 않는다.
+- npm의 0.1.2에는 이 기능이 없다.
+
 ## 빼 보기 (2026-11-15 추가)
 
 부품을 뺐을 때 크기가 얼마가 되는지 보는 기능이다. **크기만 다시 센다. 빼도 앱이 동작한다는 뜻이 아니다**(무엇이 무엇에 기대는지는 이 도구가 재지 않는다). 화면에도 그렇게 적는다.

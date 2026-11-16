@@ -1,7 +1,7 @@
 //! 규칙 색인, 파일 종류 판정, 논리 트리를 만드는 조립기.
 use anatomy_schema::rules::{Match, MatchTarget, MatchType, Rule, RuleFile};
 use anatomy_schema::*;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 // ------------------------------------------------------------------ 규칙 색인
 
@@ -214,11 +214,14 @@ pub struct B {
 
 pub struct Tree {
     pub n: Vec<B>,
+    /// 의존 관계: 노드 → 그 노드가 필요로 하는 노드들. 선언된 것만 담는다.
+    pub needs: BTreeMap<usize, BTreeSet<usize>>,
+    ends: BTreeSet<usize>,
 }
 
 impl Tree {
     pub fn new(app_name: &str) -> Tree {
-        let mut t = Tree { n: Vec::new() };
+        let mut t = Tree { n: Vec::new(), needs: BTreeMap::new(), ends: BTreeSet::new() };
         t.push(NodeKind::App, app_name, Attr::default());
         t
     }
@@ -244,6 +247,14 @@ impl Tree {
     }
     pub fn len(&self) -> usize {
         self.n.len()
+    }
+    /// `from`이 `to`를 필요로 한다고 적는다. 자기 자신은 적지 않는다.
+    pub fn need(&mut self, from: usize, to: usize) {
+        if from != to && from < self.n.len() && to < self.n.len() {
+            self.needs.entry(from).or_default().insert(to);
+            self.ends.insert(from);
+            self.ends.insert(to);
+        }
     }
 
     /// 조립기의 마지막 단계: 합계를 올리고 스키마의 노드로 바꾼다. 바이트를 세는 유일한 곳.
@@ -291,6 +302,8 @@ impl Tree {
             short_name_ratio: b.short_name_ratio,
             link: b.link.clone(),
             failure: b.failure.clone(),
+            id: if self.ends.contains(&id) { Some(id as u32) } else { None },
+            needs: self.needs.get(&id).map(|s| s.iter().map(|&x| x as u32).collect()).unwrap_or_default(),
             children,
         }
     }
@@ -298,7 +311,7 @@ impl Tree {
 
 pub fn empty_node() -> Node {
     Node { kind: NodeKind::Overhead, name: String::new(), bytes: 0, compressed_bytes: None, origin: None, confidence: None, evidence: None, category: None, rule_id: None, rule_source: None,
-           paths: Vec::new(), file_kind: None, container_type: None, encrypted: false, no_module_layer: false, short_name_ratio: None, link: None, failure: None, children: Vec::new() }
+           paths: Vec::new(), file_kind: None, container_type: None, encrypted: false, no_module_layer: false, short_name_ratio: None, link: None, failure: None, id: None, needs: Vec::new(), children: Vec::new() }
 }
 
 #[cfg(test)]

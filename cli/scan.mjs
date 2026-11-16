@@ -81,6 +81,15 @@ function prune(n) {
   }
   return n;
 }
+// 의존 관계의 id는 앱마다 0부터 시작한다. 합치기 전에 겹치지 않게 다시 매긴다.
+{
+  let base = 0;
+  for (const d of docs) {
+    let max = -1;
+    (function walk(n) { if (n.id != null) { max = Math.max(max, n.id); n.id += base; } if (n.needs) n.needs = n.needs.map(x => { max = Math.max(max, x); return x + base; }); (n.children || []).forEach(walk); })(d.root);
+    base += max + 1;
+  }
+}
 const sum = k => docs.reduce((s, d) => s + (d.completeness[k] || 0), 0), byRt = new Map();
 for (const d of docs) for (const r of d.runtimes) { const g = byRt.get(r.runtime) || { runtime: r.runtime, dissected: true, bytes: 0, apps: 0, appBytes: 0 }; g.bytes += r.bytes || 0; g.apps++; g.appBytes += d.completeness.totalBytes; g.dissected = g.dissected && r.dissected; byRt.set(r.runtime, g); }
 const result = {

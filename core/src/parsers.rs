@@ -1,5 +1,5 @@
 //! 안쪽 파서: asar 머리말, DEX, Mach-O 머리말, 이진 XML. 모두 실패 값을 돌려주고 패닉하지 않는다.
-use crate::host::{u16le, u32be, u32le};
+use crate::host::{u16le, u32be, u32le, u64le};
 
 // ------------------------------------------------------------------ asar
 
@@ -7,6 +7,19 @@ pub struct AsarFile {
     pub path: String,
     pub size: u64,
     pub unpacked: bool,
+    /// 자료 구역 안에서의 위치. 머리말에 없으면 None.
+    pub offset: Option<u64>,
+}
+
+/// asar 안에서 파일 자료가 시작하는 위치. 앞 8바이트에서 읽는다.
+pub fn asar_data_base(head: &[u8]) -> Option<u64> {
+    Some(8 + u32le(head, 4)? as u64)
+}
+
+/// package.json의 `dependencies`에 적힌 패키지 이름들.
+pub fn npm_deps(json: &[u8]) -> Vec<String> {
+    let Ok(v) = serde_json::from_slice::<serde_json::Value>(json) else { return Vec::new() };
+    v.get("dependencies").and_then(|d| d.as_object()).map(|o| o.keys().cloned().collect()).unwrap_or_default()
 }
 
 /// asar 머리말의 JSON 길이. 앞 16바이트에서 읽는다.
@@ -31,7 +44,8 @@ pub fn asar_files(json: &[u8]) -> Option<Vec<AsarFile>> {
                 stack.push((child, p));
             } else if child.get("link").is_none() {
                 let size = child.get("size").and_then(|s| s.as_u64()).unwrap_or(0);
-                out.push(AsarFile { path: p, size, unpacked: child.get("unpacked").and_then(|u| u.as_bool()) == Some(true) });
+                let offset = child.get("offset").and_then(|o| o.as_str()).and_then(|s| s.parse::<u64>().ok());
+                out.push(AsarFile { path: p, size, unpacked: child.get("unpacked").and_then(|u| u.as_bool()) == Some(true), offset });
             }
         }
     }
@@ -187,6 +201,104 @@ pub fn macho(head: &[u8], total: u64) -> Option<MachO> {
     Some(MachO { slices: vec![(arch_name(u32le(head, 4)?), total)], overhead: 0, encrypted })
 }
 
+/// Mach-O가 불러온다고 적은 라이브러리 경로들 (LC_LOAD_DYLIB, 약한 것, 다시 내보내는 것, 위로 거는 것).
+/// fat이면 첫 조각만 본다. 머리말이 주어진 범위 밖이면 빈 목록이다.
+pub fn macho_dylibs(head: &[u8]) -> Vec<String> {
+    let mut out = Vec::new();
+    let mut base = 0usize;
+    match u32be(head, 0) {
+        Some(0xCAFE_BABE) => base = u32be(head, 16).unwrap_or(0) as usize,
+        Some(0xCAFE_BABF) => base = u32be(head, 20).unwrap_or(0) as usize,
+        _ => {}
+    }
+    let Some(magic) = u32le(head, base) else { return out };
+    if magic != 0xFEED_FACF && magic != 0xFEED_FACE {
+        return out;
+    }
+    let hdr = if magic == 0xFEED_FACF { 32 } else { 28 };
+    let ncmds = u32le(head, base + 16).unwrap_or(0) as usize;
+    let mut off = base + hdr;
+    for _ in 0..ncmds.min(4096) {
+        let (Some(cmd), Some(size)) = (u32le(head, off), u32le(head, off + 4)) else { break };
+        let size = size as usize;
+        if size < 8 {
+            break;
+        }
+        if matches!(cmd, 0xC | 0x8000_0018 | 0x8000_001F | 0x8000_0023) {
+            if let Some(no) = u32le(head, off + 8) {
+                let (s, e) = (off + no as usize, off + size);
+                if let Some(bytes) = head.get(s..e.min(head.len())) {
+                    let end = bytes.iter().position(|&b| b == 0).unwrap_or(bytes.len());
+                    if let Ok(name) = std::str::from_utf8(&bytes[..end]) {
+                        if !name.is_empty() {
+                            out.push(name.to_string());
+                        }
+                    }
+                }
+            }
+        }
+        off += size;
+    }
+    out
+}
+
+// ------------------------------------------------------------------ ELF (Android의 .so)
+
+pub struct ElfDyn {
+    pub is64: bool,
+    pub dyn_off: u64,
+    pub dyn_size: u64,
+    /// LOAD 조각: (가상 주소, 파일 위치, 파일에서의 길이)
+    pub loads: Vec<(u64, u64, u64)>,
+}
+
+/// ELF 머리말에서 동적 구역의 위치를 찾는다. 리틀 엔디언만 본다.
+pub fn elf_dynamic(head: &[u8]) -> Option<ElfDyn> {
+    if head.get(0..4)? != b"\x7fELF" || *head.get(5)? != 1 {
+        return None;
+    }
+    let is64 = *head.get(4)? == 2;
+    let (phoff, phentsize, phnum) = if is64 { (u64le(head, 32)? as usize, u16le(head, 54)? as usize, u16le(head, 56)? as usize) } else { (u32le(head, 28)? as usize, u16le(head, 42)? as usize, u16le(head, 44)? as usize) };
+    let mut d = ElfDyn { is64, dyn_off: 0, dyn_size: 0, loads: Vec::new() };
+    for i in 0..phnum.min(128) {
+        let o = phoff + i * phentsize;
+        let ty = u32le(head, o)?;
+        let (off, vaddr, filesz) = if is64 { (u64le(head, o + 8)?, u64le(head, o + 16)?, u64le(head, o + 32)?) } else { (u32le(head, o + 4)? as u64, u32le(head, o + 8)? as u64, u32le(head, o + 16)? as u64) };
+        match ty {
+            1 => d.loads.push((vaddr, off, filesz)),
+            2 => {
+                d.dyn_off = off;
+                d.dyn_size = filesz;
+            }
+            _ => {}
+        }
+    }
+    if d.dyn_size == 0 { None } else { Some(d) }
+}
+
+/// 동적 구역에서 DT_NEEDED의 이름 위치들과 문자열 표의 (가상 주소, 길이)를 읽는다.
+pub fn elf_needed(dynb: &[u8], is64: bool) -> (Vec<u64>, Option<u64>, Option<u64>) {
+    let step = if is64 { 16 } else { 8 };
+    let (mut needed, mut strtab, mut strsz) = (Vec::new(), None, None);
+    let mut o = 0;
+    while o + step <= dynb.len() {
+        let (tag, val) = if is64 { (u64le(dynb, o).unwrap_or(0), u64le(dynb, o + 8).unwrap_or(0)) } else { (u32le(dynb, o).unwrap_or(0) as u64, u32le(dynb, o + 4).unwrap_or(0) as u64) };
+        match tag {
+            0 => break,
+            1 => needed.push(val),
+            5 => strtab = Some(val),
+            10 => strsz = Some(val),
+            _ => {}
+        }
+        o += step;
+    }
+    (needed, strtab, strsz)
+}
+
+pub fn elf_vaddr_to_off(d: &ElfDyn, v: u64) -> Option<u64> {
+    d.loads.iter().find(|(va, _, sz)| v >= *va && v < va + sz).map(|(va, off, _)| v - va + off)
+}
+
 // ------------------------------------------------------------------ 이진 XML (AndroidManifest.xml)
 
 fn axml_string(d: &[u8], pool: usize, idx: usize) -> Option<String> {
@@ -294,5 +406,46 @@ mod tests {
         let m = macho(&d, 8392).unwrap();
         assert_eq!(m.slices, vec![("x86_64".to_string(), 100), ("arm64".to_string(), 200)]);
         assert_eq!(m.overhead, 8392 - 300);
+    }
+
+    #[test]
+    fn npm_dependencies() {
+        let deps = npm_deps(br#"{"name":"a","dependencies":{"b":"^1","@s/c":"2"},"devDependencies":{"d":"1"}}"#);
+        assert_eq!(deps, vec!["@s/c".to_string(), "b".to_string()]);
+        assert!(npm_deps(b"not json").is_empty());
+    }
+
+    #[test]
+    fn macho_load_commands() {
+        // 64비트 thin Mach-O: 머리말 32바이트 + LC_LOAD_DYLIB 하나
+        let name = b"@rpath/Foo.framework/Versions/A/Foo\0";
+        let size = (24 + name.len() + 7) / 8 * 8;
+        let mut d = vec![0u8; 32];
+        d[0..4].copy_from_slice(&0xFEED_FACFu32.to_le_bytes());
+        d[16..20].copy_from_slice(&1u32.to_le_bytes());
+        let mut cmd = vec![0u8; size];
+        cmd[0..4].copy_from_slice(&0xCu32.to_le_bytes());
+        cmd[4..8].copy_from_slice(&(size as u32).to_le_bytes());
+        cmd[8..12].copy_from_slice(&24u32.to_le_bytes());
+        cmd[24..24 + name.len()].copy_from_slice(name);
+        d.extend(cmd);
+        assert_eq!(macho_dylibs(&d), vec!["@rpath/Foo.framework/Versions/A/Foo".to_string()]);
+        assert!(macho_dylibs(b"plain text").is_empty());
+    }
+
+    #[test]
+    fn elf_needed_entries() {
+        // 64비트 동적 구역: NEEDED 두 개, STRTAB, STRSZ, 끝
+        let mut d = Vec::new();
+        for (tag, val) in [(1u64, 1u64), (1, 9), (5, 0x1000), (10, 20), (0, 0)] {
+            d.extend(tag.to_le_bytes());
+            d.extend(val.to_le_bytes());
+        }
+        let (needed, strtab, strsz) = elf_needed(&d, true);
+        assert_eq!(needed, vec![1, 9]);
+        assert_eq!((strtab, strsz), (Some(0x1000), Some(20)));
+        let info = ElfDyn { is64: true, dyn_off: 0, dyn_size: 0, loads: vec![(0x1000, 0x400, 0x100)] };
+        assert_eq!(elf_vaddr_to_off(&info, 0x1010), Some(0x410));
+        assert_eq!(elf_vaddr_to_off(&info, 0x2000), None);
     }
 }
